@@ -1,0 +1,139 @@
+//2
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+int sum1(double x) {
+    double sum2 = 0;
+    int n = 1;
+    double sum = 1 / (n * (n + x));
+    while ((sum - sum2) > (0.5 * pow(10, -8))) {
+        n++;
+        sum2 = sum;
+        sum += 1 / (n * (n + x));
+    }
+    cout << "Сумма ряда f(x): " << sum << " ";
+    return n;
+}
+
+int sum2(double x) {
+    double sum2 = 0;
+    int n = 1;
+    double sum = (1 - x) / (n * (n + x) * (n + 1));
+    while ((sum - sum2) > (0.5 * pow(10, -8))) {
+        n++;
+        sum2 = sum;
+        sum += (1-x) / (n * (n + x) * (n + 1));
+    }
+    cout << "Сумма ряда f(x)-f(1): " << sum << " ";
+    return n;
+}
+
+int sum3() {
+    double sum2 = 0;
+    int n = 1;
+    double sum = 1 / n - 1 / (n + 1);
+    while ((sum - sum2) > (0.5 * pow(10, -8))) {
+        n++;
+        sum2 = sum;
+        sum += 1 / n - 1 / (n + 1);
+    }
+    cout << "Сумма ряда при использовании 1/k-1/(k+1) (при x=1): " << sum << " ";
+    return n;
+}
+
+int main()
+{
+    setlocale(LC_ALL, "Russian");
+    for (double x = 0; x <= 1.0; x += 0.1) {
+        cout << "x=" << x << " - ";
+        cout << " n: " << sum1(x) << '\n';
+    }
+    cout << '\n';
+    for (double x = 0; x <= 1.0; x += 0.1) {
+        cout << "x=" << x << " - ";
+        cout << " n: " << sum2(x) << '\n';
+    }
+    cout << "n: " << sum3() << endl;
+}
+
+//3
+#include <iostream>
+using namespace std;
+
+double s(double x) {
+    //long double error = 3*pow(10,-8);
+    int k = 1;
+    double sum1 = 1/(sqrt((pow(k,3))+x))- 1 / (sqrt((pow(k, 3)) - x));
+    double sum2 = 0;
+    while (sum1-sum2> 3 * pow(10, -8)) {//если член оказывается меньше заданной точности, то выход из цикла
+        k++;
+        sum2 = sum1;
+        sum1+= 1 / (sqrt((pow(k, 3)) + x)) - 1 / (sqrt((pow(k, 3)) - x));
+    }
+
+    cout << k << " ";
+    return sum1;
+}
+double s1(double x) {
+    //long double error = 3*pow(10,-8);
+    int k = 1;
+    double sum1 = 1 / (sqrt((pow(k, 3)) + x));
+    double sum2 = 0;
+    while (sum1 - sum2 > 3 * pow(10, -8)) {//если член оказывается меньше заданной точности, то выход из цикла
+        k++;
+        sum2 = sum1;
+        sum1 += 1 / (sqrt((pow(k, 3)) + x));
+    }
+
+    cout << k << " ";
+    return sum1;
+}
+double s2(double x) {
+    //long double error = 3*pow(10,-8);
+    int k = 1;
+    double sum1 = 1 / (sqrt((pow(k, 3)) - x));
+    double sum2 = 0;
+    while (sum1 - sum2 > 3 * pow(10, -8)) {//если член оказывается меньше заданной точности, то выход из цикла
+        k++;
+        sum2 = sum1;
+        sum1 += 1 / (sqrt((pow(k, 3)) - x));
+    }
+
+    cout << k << " ";
+    return sum1;
+}
+double s3(double x) {
+    //long double error = 3*pow(10,-8);
+    int k = 1;
+    double sum1 = (sqrt(pow(k, 3) - x) - sqrt(pow(k, 3) + x)) / (sqrt((pow(k, 3) + x) * (pow(k, 3) - x)));
+    double sum2 = 0;
+    while (sum1 - sum2 > 3 * pow(10, -8)) {//если член оказывается меньше заданной точности, то выход из цикла
+        k++;
+        sum2 = sum1;
+        sum1 += (sqrt(pow(k, 3) - x) - sqrt(pow(k, 3) + x)) / (sqrt((pow(k, 3) + x) * (pow(k, 3) - x)));
+    }
+
+    cout << k << " ";
+    return sum1;
+}
+int main()
+{
+    setlocale(LC_ALL, "Ru");
+    for (double x = -0.9; x <= 0.9; x += 0.1) {
+        cout << x<< " " <<  s(x) << endl;
+    }
+    cout << "A (ряд сходится, если существует сумма ряда)" << endl;
+    for (double x = -0.9; x <= 0.9; x += 0.1) {
+        cout << x << " " << s1(x) << endl;
+    }
+    for (double x = -0.9; x <= 0.9; x += 0.1) {
+        cout << x << " " << s2(x) << endl;
+    }
+    cout << "В: 103575 миллисекунд" << endl;
+    cout << "Г и Д" << endl;
+    cout << "0.5: " << " " << s3(0.5) << endl;
+    cout << "0.999999999" << " " << s3(0.999999999) << endl;
+
+
+}
