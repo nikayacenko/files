@@ -1,0 +1,99 @@
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <cstdlib>
+#include <conio.h>
+using namespace std;
+
+long filesize() {
+	ifstream in;
+	int count = 0;
+	in.open("file.txt", ios::ate);
+	if (!in)
+		return -1;
+	return in.tellg();
+}
+
+int main()
+{
+	while (1) {
+		ifstream in("file.txt", ios::ate);
+		long s1 = filesize();
+		long s2 = s1;
+		string p;
+		int c = 0;
+		bool fl = 0;
+		while (s2 == s1) {
+			s1 = filesize();
+			if (_kbhit()) { // Проверяем, была ли нажата клавиша
+				if (_getch() == 27) { 27 - ASCII код клавиши ESC
+					fl = 1;
+					break;
+				}
+			}
+
+		}
+		if (fl)
+			break;
+		string s;
+		getline(in, s);
+		if (s == "")
+			getline(in, s);
+		cout << s << endl;
+		
+		in.close();
+	}
+}
+
+
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <cstdlib>
+#include <conio.h>
+using namespace std;
+long filesize() {
+	ifstream in;
+	int count = 0;
+	in.open("my_binary_file.bin", ios::binary);
+	if (!in)
+		return -1;
+	in.seekg(0, ios::end);
+	return in.tellg();
+}
+int main() {
+	while (1) {
+		ifstream in("my_binary_file.bin", ios::binary);
+		in.seekg(0, ios::end);
+		long s1 = filesize();
+		long s2 = s1;
+		string p;
+		int c = 0;
+		bool fl = 0;
+		while (s2 == s1) {
+			s1 = filesize();
+			if (_kbhit()) {
+				if (_getch() == 27) {
+					fl = 1;
+					break;
+				}
+			}
+		
+		}
+		if (fl)
+			break;
+		/*int n = 10;
+		char* buffer = new char[n + 1]; buffer[n] = 0;
+		in.read(buffer, n);
+		cout << buffer << endl;
+		delete[]buffer;*/
+		string s;
+		getline(in, s);
+		if (s == "")
+			getline(in, s);
+		cout << s << endl;
+		in.close();
+	}
+	
+}
+
