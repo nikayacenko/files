@@ -136,4 +136,47 @@ int main()
     cout << "0.999999999" << " " << s3(0.999999999) << endl;
 
 
+#include <iostream>
+#include <cmath>
+using namespace std;
+#define M_PI acos(-1)
+#include <math.h>
+const double eps = 1e-10;
+double sum1() {
+    double sum2 = 0;
+    int n = 1;
+    double sum = 1/(pow(n,2)+1);
+    while ((sum - sum2) > eps) {
+        n++;
+        sum2 = sum;
+        sum += 1 / (pow(n, 2) + 1);
+    }
+    cout << n << endl;
+    return sum;
+}
+
+double sum2() {
+    double sum2 = 0;
+    int n = 1;
+    double sum = pow(M_PI, 2) / 6 - pow(M_PI, 4) / 90 + 1 / (pow(n, 6) + pow(n, 4));
+    while ((sum - sum2) > eps) {
+        n++;
+        sum2 = sum;
+        sum += 1 / (pow(n, 6) + pow(n, 4));
+
+
+    }
+    cout << n << endl;
+    return sum;
+}
+
+
+
+int main()
+{
+    setlocale(LC_ALL, "Russian");
+    cout << sum1() << endl;
+    cout << sum2();
+}
+
 }
