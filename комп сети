@@ -97,3 +97,152 @@ int main() {
 	
 }
 
+#include<iostream>
+#include<fstream>
+#include<conio.h>
+using namespace std;
+#include <string>
+#include <random>
+#include <algorithm>
+#include <deque>
+using namespace std;
+string generateRandomId(int length) {
+    const string characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    random_device random_device;
+    mt19937 generator(random_device());
+    uniform_int_distribution<> distribution(0, characters.size() - 1);
+
+    string random_id;
+    for (int i = 0; i < length; ++i) {
+        random_id += characters[distribution(generator)];
+    }
+    return random_id;
+}
+long long sizeOf(const string& filename) {
+    std::ifstream file(filename, ios::ate);
+
+    if (!file.is_open()) {
+        std::cerr << "Ошибка открытия файла: " << filename << std::endl;
+        return -1; // Ошибка: не удалось открыть файл
+    }
+
+    return file.tellg();
+}
+int main()
+{
+    setlocale(LC_ALL, "Ru");
+    //ofstream fout("fileM.txt", ios::app);
+    ifstream fin;
+    bool fl = 1;
+    do{
+        string s;
+        //fout.open("fileM.txt");
+        //fout << generateRandomId(4) << " ";
+        cout << "введите количество оценок: ";
+        int n;
+        cin >> n;
+        cout << "введите оценки: ";
+        ofstream fout("../../компсети2/x64/Debug/fileM.txt");
+        fout << generateRandomId(4) << " ";
+
+        int marks;
+        if (fout.is_open()) {
+            for (int i = 0; i < n; i++) {
+
+                cin >> marks;
+                fout << marks << " ";
+
+            }
+        }
+        fout << endl;
+        fout.close();
+        long s1 = sizeOf("../../компсети3/x64/Debug/result.txt");
+        long s2 = s1;
+        while (s2 == s1) {
+            s2 = s1;
+            s1 = sizeOf("../../компсети3/x64/Debug/result.txt");
+        }
+        fin.open("../../компсети3/x64/Debug/result.txt");
+
+        if (fin.is_open()) {
+            //cout <<  endl;
+            while (getline(fin, s)) {
+                cout << "стипендия равна: " <<s.substr(5) << endl;
+
+            }
+
+        }
+        fin.close();
+        cout << "Для ввода оценок нажмите на любую клавишу, для выхода из программы нажмите esc" << endl;
+
+    } while (_kbhit() || _getch() != 27);
+    //fout.close();
+
+}
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <sstream>
+#include <filesystem>
+using namespace std;
+long long sizeOf(const string& filename) {
+    std::ifstream file(filename, ios::ate);
+
+    if (!file.is_open()) {
+        std::cerr << "Ошибка открытия файла: " << filename << std::endl;
+        return -1; // Ошибка: не удалось открыть файл
+    }
+
+    return file.tellg();
+}
+int main()
+{
+    setlocale(LC_ALL, "Ru");
+    //ofstream fout("result.txt", ios::trunc)
+    while (1) {
+        string s;
+        ifstream fin;
+
+        //fin.open("C:/Users/yacen/source/repos/компсети2/компсети2/fileM.txt");
+        long s1 = sizeOf("../../компсети2/x64/Debug/fileM.txt");
+        long s2 = s1;
+
+        while (s2 == s1) {
+            s2 = s1;
+            //s1 = sizeOf("C:/Users/yacen/source/repos/компсети2/компсети2/fileM.txt");
+            s1 = sizeOf("../../компсети2/x64/Debug/fileM.txt");
+
+        }
+        fin.open("../../компсети2/x64/Debug/fileM.txt");
+        ofstream fout("../../компсети3/x64/Debug/result.txt");
+        while (getline(fin, s)) {
+            int numb;
+            int sum = 0;
+            //fout << s << endl
+            fout << s.substr(0, 4) << " ";
+            stringstream ss(s);
+            while (ss >> numb)
+                sum += numb;
+            //fout << sum << endl;
+            if (s.find("3") == -1 && s.find("4") == -1) {
+                fout << 3126.82 << endl;
+                continue;
+            }
+            if (s.find("3") == -1 ) {
+                fout << 2046.32 << endl;
+                continue;
+            }
+            if (s.find("3")>=0) {
+                fout << 0 << endl;
+                continue;
+            }
+        }
+        fin.close();
+        fout.close();
+        
+
+    }
+}
+///
