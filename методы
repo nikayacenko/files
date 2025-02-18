@@ -180,3 +180,252 @@ int main()
 }
 
 }
+
+#include <iostream>
+ #include <stdio.h>
+#include <stdlib.h>
+using namespace std;
+//
+// Транспонирование матрицы
+double** Transpone(double** mas, int rows, int cols)
+{
+    double** rez;
+    rez = (double**)malloc(cols * sizeof(double*));
+    for (int i = 0; i < cols; i++)
+    {
+        rez[i] = (double*)malloc(rows * sizeof(double));
+        for (int j = 0; j < rows; j++)
+            rez[i][j] = mas[j][i];
+    }
+    return rez;
+}
+
+// Получение матрицы без i-й строки и j-го столбца
+// (функция нужна для вычисления определителя и миноров)
+double** GetMatr(double** mas, int rows, int cols, int row, int col) {
+    int di, dj;
+    double** p = (double**)malloc((rows - 1) * sizeof(double*));
+    di = 0;
+    for (int i = 0; i < rows - 1; i++) { // проверка индекса строки
+        if (i == row)  // строка совпала с вычеркиваемой
+            di = 1;    // - дальше индексы на 1 больше
+        dj = 0;
+        p[i] = (double*)malloc((cols - 1) * sizeof(double));
+        for (int j = 0; j < cols - 1; j++) { // проверка индекса столбца
+            if (j == col)  // столбец совпал с вычеркиваемым
+                dj = 1;    // - дальше индексы на 1 больше
+            p[i][j] = mas[i + di][j + dj];
+        }
+    }
+    return p;
+}
+
+// Рекурсивное вычисление определителя
+double Determinant(double** mas, int m) {
+    int k;
+    double** p = 0;
+    double d = 0;
+    k = 1; //(-1) в степени i
+    if (m < 1) { printf("Определитель вычислить невозможно!"); return 0; }
+    if (m == 1) { d = mas[0][0]; return(d); }
+    if (m == 2) { d = mas[0][0] * mas[1][1] - (mas[1][0] * mas[0][1]); return(d); }
+    if (m > 2) {
+        for (int i = 0; i < m; i++) {
+            p = GetMatr(mas, m, m, i, 0);
+            d = d + k * mas[i][0] * Determinant(p, m - 1);
+            k = -k;
+        }
+    }
+    return(d);
+}
+
+// Обратная матрица
+double** Mreverse(double** mas, int m)
+{
+    double** rez = (double**)malloc(m * sizeof(double*));
+    double det = Determinant(mas, m); // находим определитель исходной матрицы
+    for (int i = 0; i < m; i++)
+    {
+        rez[i] = (double*)malloc(m * sizeof(double));
+        for (int j = 0; j < m; j++)
+        {
+            rez[i][j] = Determinant(GetMatr(mas, m, m, i, j), m - 1);
+            if ((i + j) % 2 == 1)       // если сумма индексов строки и столбца нечетная
+                rez[i][j] = -rez[i][j];    // меняем знак минора
+            rez[i][j] = rez[i][j] / det;
+        }
+    }
+    return Transpone(rez, m, m);
+}
+//
+double* gauss(double** a, double* y, int n)
+{
+	double* x, max;
+	int k, ind;
+	x = new double[n];
+	k = 0;
+	const long double eps = 0.00001;
+	//поиск строки с макс первым элементом
+	while (k < n) {
+		max = abs(a[k][k]);
+		ind = k;
+		for (int i = k + 1; i < n; i++) {
+			if (abs(a[i][k]) > max)
+			{
+				max = abs(a[i][k]);
+				ind = i;
+			}
+		}
+		//перестановка строк
+		for (int j = 0; j < n; j++)
+		{
+			double temp = a[k][j];
+			a[k][j] = a[ind][j];
+			a[ind][j] = temp;
+		}
+		double temp = y[k];
+		y[k] = y[ind];
+		y[ind] = temp;
+		//нормализация
+		for (int i = k; i < n; i++)
+		{
+			double temp = a[i][k];
+			if (abs(temp) <= eps) continue;
+			for (int j = k; j < n; j++)
+				a[i][j] = a[i][j] / temp;
+			y[i] = y[i] / temp;
+			if (i == k) continue;
+			for (int j = 0; j < n; j++)
+				a[i][j] = a[i][j] - a[k][j];
+			y[i] = y[i] - y[k];
+		}
+		k++;
+	}
+	//подстановка полученных значений в уравнения
+	for (k = n - 1; k >= 0; k--)
+	{
+		x[k] = y[k];
+		for (int i = 0; i < k; i++)
+			y[i] = y[i] - a[i][k] * x[k];
+	}
+	return x;
+}
+
+// Функция для копирования двумерного массива (матрицы) типа double
+double** copyMatrix(double**matr) {
+	// Выделяем память для новой матрицы
+	double** matr2 = new double* [3];
+	for (int i = 0; i < 3; ++i) {
+		matr2[i] = new double[3];
+		// Копируем элементы из исходной матрицы в новую
+		for (int j = 0; j < 3; ++j) {
+			matr2[i][j] = matr[i][j];
+		}
+	}
+
+	return matr2;
+}
+int main() {
+	setlocale(LC_ALL, "Ru");
+	double** matr = new double*[3];
+	double* b = new double[3];
+	double* x = new double[3];
+	cout.precision(11);
+	for (int i = 0; i < 3; i++) {
+		matr[i] = new double [3];
+		for (int j = 0; j < 3; j++)
+			cin >> matr[i][j];
+	}
+	double** matr2 = copyMatrix(matr);
+	double** matr3 = copyMatrix(matr);
+
+	b[0] = erf(0.80);
+	b[1] = erf(0.90);
+	b[2] = erf(1.10);
+	x = gauss(matr, b, 3);
+	
+	cout << "значения вектора x: ";
+	for (int i = 0; i < 3; i++)
+		cout  << x[i] << " ";
+	cout << endl;
+	cout << endl;
+	//обусловленность(надо комментировать вызов метода гаусса чтобы максимумы были найдены правильно
+	//cout << "обусловленность: " << endl;
+	double max = 0;
+	for (int i = 0; i < 3; i++)
+		max += matr2[i][0];
+	int maxj = 0;
+	for (int j = 0; j < 3; j++) {
+		double sum = 0;
+		for (int i = 0; i < 3; i++)
+		{
+			sum += abs(matr2[i][j]);
+		}
+		if (sum > max) {
+			max = sum;
+			maxj = j;
+		}
+	}
+	cout <<"норма изначальной матрицы: " << max << endl;
+	double** mas_reverse = Mreverse(matr2, 3);
+	cout << "обратная матрица: " << endl;
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++)
+			cout << mas_reverse[i][j] << " ";
+		cout << endl;
+	}
+	double max2 = 0;
+	for (int i = 0; i < 3; i++)
+		max2 += mas_reverse[i][0];
+	
+	int maxj2 = 0;
+	for (int j = 0; j < 3; j++) {
+		double sum = 0;
+		for (int i = 0; i < 3; i++)
+		{
+			sum += abs(mas_reverse[i][j]);
+		}
+		if (sum > max2) {
+			max2 = sum;
+			maxj2 = j;
+		}
+	}
+	cout <<"норма обратной матрицы: " << max2 << endl;
+	double condA = max * max2;
+	cout <<"обусловленность матрицы: " << condA << endl;
+	cout << endl;
+	////невязка, вычисление перемножения матрицы а на вектор x
+	/*for (int i = 0; i < 3; i++)
+		cout << x[i] << endl;*/ 
+	b[0] = erf(0.80);
+	b[1] = erf(0.90);
+	b[2] = erf(1.10);
+	cout << "Ax: ";
+	double* n = new double[3];
+	for (int i = 0; i < 3; i++) {
+		n[i] = 0;
+		for (int j = 0; j < 3; j++) {
+			n[i] += matr3[i][j] * x[j];
+			
+		}cout << n[i] << " ";
+	}
+	cout << endl;
+	//cout << b[0] << " " << b[1] << " " << b[2] << endl;
+	cout << "вектор невязки: ";
+	for (int i = 0; i < 3; i++) {
+		n[i] = n[i] - b[i];
+		cout << n[i] << " ";
+	}
+	cout << endl;
+	double norm = 0;
+	for (int i = 0; i < 3; i++)
+		norm += pow(n[i], 2);
+	cout <<"невязка: " <<fixed << sqrt(norm) << endl;
+	//напечатала x1+x2+x3 и сравнила с erf
+	cout << endl;
+	double resX = 0;
+	for (int i = 0; i < 3; i++)
+		resX += x[i];
+	cout << "x1+x2+x3: " << resX << endl;
+	cout << "erf(1.0): " << erf(1.0) << endl;
+}
