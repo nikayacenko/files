@@ -429,3 +429,512 @@ int main() {
 	cout << "x1+x2+x3: " << resX << endl;
 	cout << "erf(1.0): " << erf(1.0) << endl;
 }
+
+//ЛАБА
+4.43 -7.21 8.05 1.23 -2.56
+-1.29 6.47 2.96 3.22 6.12
+6.12 8.31 9.41 1.78 -2.88
+-2.57 6.93 -3.74 7.41 5.55
+1.46 3.62 7.83 6.25 -2.35
+
+2.34 -4.21 -11.61
+8.04 5.22 0.27
+3.92 -7.99 8.37
+
+#include <iostream>
+using namespace std;
+// Функция для копирования двумерного массива (матрицы) типа double
+double** copyMatrix(double**matr, int n) {
+	// Выделяем память для новой матрицы
+	double** matr2 = new double* [n];
+	for (int i = 0; i < n; ++i) {
+		matr2[i] = new double[n];
+		// Копируем элементы из исходной матрицы в новую
+		for (int j = 0; j < n; ++j) {
+			matr2[i][j] = matr[i][j];
+		}
+	}
+
+	return matr2;
+}
+double* gauss(double** a, double* y, int n)
+{
+	double* x, max;
+	int k, ind;
+	x = new double[n];
+	k = 0;
+	const long double eps = 0.00001;
+	//поиск строки с макс первым элементом
+	while (k < n) {
+		max = abs(a[k][k]);
+		ind = k;
+		for (int i = k + 1; i < n; i++) {
+			if (abs(a[i][k]) > max)
+			{
+				max = abs(a[i][k]);
+				ind = i;
+			}
+		}
+		//перестановка строк
+		for (int j = 0; j < n; j++)
+		{
+			double temp = a[k][j];
+			a[k][j] = a[ind][j];
+			a[ind][j] = temp;
+		}
+		double temp = y[k];
+		y[k] = y[ind];
+		y[ind] = temp;
+		//нормализация
+		for (int i = k; i < n; i++)
+		{
+			double temp = a[i][k];
+			if (abs(temp) <= eps) continue;
+			for (int j = k; j < n; j++)
+				a[i][j] = a[i][j] / temp;
+			y[i] = y[i] / temp;
+			if (i == k) continue;
+			for (int j = 0; j < n; j++)
+				a[i][j] = a[i][j] - a[k][j];
+			y[i] = y[i] - y[k];
+		}
+		k++;
+	}
+	//подстановка полученных значений в уравнения
+	for (k = n - 1; k >= 0; k--)
+	{
+		x[k] = y[k];
+		for (int i = 0; i < k; i++)
+			y[i] = y[i] - a[i][k] * x[k];
+	}
+	return x;
+}
+int main(){
+	setlocale(LC_ALL, "Ru");
+	cout.precision(11);
+	double** a = new double* [2];
+	double* b = new double[2];
+	double* x;
+	//for (int i = 0; i < 2; i++) {
+	//	a[i] = new double[2];
+	//	for (int j = 0; j < 2; j++)
+	//		cin >> a[i][j];
+	//}
+	//b[0] = 1;
+	//b[1] = 4;
+	//double** a2 = copyMatrix(a, 2);
+	//x = gauss(a, b, 2);
+	//b[0] = 1;
+	//b[1] = 4;
+	//cout << "x: ";
+	//for (int i = 0; i < 2; i++)
+	//	cout << x[i] << " ";
+	//cout << endl;
+	//cout << "Ax: ";
+	//double* n = new double[2];
+	//for (int i = 0; i < 2; i++) {
+	//	n[i] = 0;
+	//	for (int j = 0; j < 2; j++) {
+	//		n[i] += a2[i][j] * x[j];
+	//			
+	//	}cout << n[i] << " ";
+	//}
+	//cout << endl;
+	////cout << b[0] << " " << b[1] << " " << b[2] << endl;
+	//cout << "вектор невязки: ";
+	//for (int i = 0; i < 2; i++) {
+	//	n[i] = n[i] - b[i];
+	//	cout << n[i] << " ";
+	//}
+	//cout << endl;
+	double** a3 = new double* [3];
+	for (int i = 0; i < 3; i++) {
+		a3[i] = new double[3];
+		for (int j = 0; j < 3; j++)
+			cin >> a3[i][j];
+	}
+	double** a4 = copyMatrix(a3, 3);
+	b[0] = 14.41;
+	b[1] = -6.44;
+	b[2] = 55.56;
+	x = gauss(a3, b, 3);
+	for (int i = 0; i < 3; i++)
+		cout << x[i] << " ";
+	cout << endl;
+	cout << "Ax: ";
+	double* n2 = new double[3];
+	b[0] = 14.41;
+	b[1] = -6.44;
+	b[2] = 55.56;
+	for (int i = 0; i < 3; i++) {
+		n2[i] = 0;
+		for (int j = 0; j < 3; j++) {
+			n2[i] += a4[i][j] * x[j];
+
+		}cout << n2[i] << " ";
+	}
+	cout << endl;
+	cout << "вектор невязки: ";
+	for (int i = 0; i < 3; i++) {
+		n2[i] = n2[i] - b[i];
+		cout <<fixed << n2[i] << " ";
+	}
+	cout << endl;
+	double** a5 = new double* [5];
+	for (int i = 0; i < 5; i++) {
+		a5[i] = new double[5];
+		for (int j = 0; j < 5; j++)
+			cin >> a5[i][j];
+	}
+	double** a6 = copyMatrix(a5, 5);
+	b[0] = 2.62;
+	b[1] = -3.97;
+	b[2] = -9.12;
+	b[3] = 8.11;
+	b[4] = 7.23;
+	x = gauss(a5, b, 5);
+	for (int i = 0; i < 5; i++)
+		cout << x[i] << " ";
+	cout << endl;
+	cout << "Ax: ";
+	double* n3 = new double[5];
+	b[0] = 2.62;
+	b[1] = -3.97;
+	b[2] = -9.12;
+	b[3] = 8.11;
+	b[4] = 7.23;
+	for (int i = 0; i < 5; i++) {
+		n3[i] = 0;
+		for (int j = 0; j < 5; j++) {
+			n3[i] += a6[i][j] * x[j];
+
+		}cout << n3[i] << " ";
+	}
+	cout << endl;
+	cout << "вектор невязки: ";
+	for (int i = 0; i < 5; i++) {
+		n3[i] = n3[i] - b[i];
+		cout << fixed << n3[i] << " ";
+	}
+}
+
+
+///////////////////////////////////////////
+//#include <iostream>
+//using namespace std;
+//double* gauss(double** a, double* y, int n)
+//{
+//	double* x, max;
+//	int k, ind;
+//	x = new double[n];
+//	k = 0;
+//	const long double eps = 0.00001;
+//	//поиск строки с макс первым элементом
+//	while (k < n) {
+//		max = abs(a[k][k]);
+//		ind = k;
+//		for (int i = k + 1; i < n; i++) {
+//			if (abs(a[i][k]) > max)
+//			{
+//				max = abs(a[i][k]);
+//				ind = i;
+//			}
+//		}
+//		//перестановка строк
+//		for (int j = 0; j < n; j++)
+//		{
+//			double temp = a[k][j];
+//			a[k][j] = a[ind][j];
+//			a[ind][j] = temp;
+//		}
+//		double temp = y[k];
+//		y[k] = y[ind];
+//		y[ind] = temp;
+//		//нормализация
+//		for (int i = k; i < n; i++)
+//		{
+//			double temp = a[i][k];
+//			if (abs(temp) <= eps) continue;
+//			for (int j = k; j < n; j++)
+//				a[i][j] = a[i][j] / temp;
+//			y[i] = y[i] / temp;
+//			if (i == k) continue;
+//			for (int j = 0; j < n; j++)
+//				a[i][j] = a[i][j] - a[k][j];
+//			y[i] = y[i] - y[k];
+//		}
+//		k++;
+//	}
+//	//подстановка полученных значений в уравнения
+//	for (k = n - 1; k >= 0; k--)
+//	{
+//		x[k] = y[k];
+//		for (int i = 0; i < k; i++)
+//			y[i] = y[i] - a[i][k] * x[k];
+//	}
+//	return x;
+//}
+//int main() {
+//	double** a = new double* [3];
+//	double* b = new double[3];
+//	double* x;
+//	for (int i = 0; i < 3; i++) {
+//		a[i] = new double[3];
+//		for (int j = 0; j < 3; j++)
+//			cin >> a[i][j];
+//	}
+//	b[0] = 0.1;
+//	b[1] = 0.3;
+//	b[2] = 0.5;
+//	x = gauss(a, b, 3);
+//	for (int i = 0; i < 3; i++) {
+//		for (int j = 0; j < 3; j++)
+//			cout << a[i][j] << " ";
+//		cout << endl;
+//	}
+//	for (int i = 0; i < 3; i++)
+//		cout << x[i] << " ";
+//			
+//}
+
+//////////////////////////////////////////////
+#include <iostream>
+ #include <stdio.h>
+#include <stdlib.h>
+using namespace std;
+
+// 
+//double** inverseMatrix(double** matrix, int n) {
+//	// Создание расширенной матрицы [matrix | identity]
+//	double** augmentedMatrix = new double* [n];
+//	for (int i = 0; i < n; ++i) {
+//		augmentedMatrix[i] = new double[2 * n];
+//		for (int j = 0; j < n; ++j) {
+//			augmentedMatrix[i][j] = matrix[i][j];
+//		}
+//		// Создание единичной матрицы
+//		for (int j = n; j < 2 * n; ++j) {
+//			if (i == (j - n)) {
+//				augmentedMatrix[i][j] = 1.0;
+//			}
+//			else {
+//				augmentedMatrix[i][j] = 0.0;
+//			}
+//		}
+//	}
+//
+//	// Приведение к ступенчатому виду (прямой ход)
+//	for (int i = 0; i < n; ++i) {
+//		// Поиск максимального элемента в столбце i
+//		int maxRow = i;
+//		for (int k = i + 1; k < n; ++k) {
+//			if (fabs(augmentedMatrix[k][i]) > fabs(augmentedMatrix[maxRow][i])) {
+//				maxRow = k;
+//			}
+//		}
+//
+//		// Перестановка строк, если найден больший элемент
+//		if (maxRow != i) {
+//			swap(augmentedMatrix[i], augmentedMatrix[maxRow]);
+//		}
+//
+//		// Нормализация строки
+//		double pivot = augmentedMatrix[i][i];
+//		for (int j = 0; j < 2 * n; ++j) {
+//			augmentedMatrix[i][j] /= pivot;
+//		}
+//
+//		// Обнуление остальных строк
+//		for (int k = 0; k < n; ++k) {
+//			if (k != i) {
+//				double factor = augmentedMatrix[k][i];
+//				for (int j = 0; j < 2 * n; ++j) {
+//					augmentedMatrix[k][j] -= factor * augmentedMatrix[i][j];
+//				}
+//			}
+//		}
+//	}
+//
+//	// Извлечение обратной матрицы
+//	double** inverse = new double* [n];
+//	for (int i = 0; i < n; ++i) {
+//		inverse[i] = new double[n];
+//		for (int j = 0; j < n; ++j) {
+//			inverse[i][j] = augmentedMatrix[i][j + n];
+//		}
+//	}
+//
+//	return inverse;
+//}
+////
+//double* gauss(double** a, double* y, int n)
+//{
+//	double* x, max;
+//	int k, ind;
+//	x = new double[n];
+//	k = 0;
+//	const long double eps = 0.00001;
+//	//поиск строки с макс первым элементом
+//	while (k < n) {
+//		max = abs(a[k][k]);
+//		ind = k;
+//		for (int i = k + 1; i < n; i++) {
+//			if (abs(a[i][k]) > max)
+//			{
+//				max = abs(a[i][k]);
+//				ind = i;
+//			}
+//		}
+//		//перестановка строк
+//		for (int j = 0; j < n; j++)
+//		{
+//			double temp = a[k][j];
+//			a[k][j] = a[ind][j];
+//			a[ind][j] = temp;
+//		}
+//		double temp = y[k];
+//		y[k] = y[ind];
+//		y[ind] = temp;
+//		//нормализация
+//		for (int i = k; i < n; i++)
+//		{
+//			double temp = a[i][k];
+//			if (abs(temp) <= eps) continue;
+//			for (int j = k; j < n; j++)
+//				a[i][j] = a[i][j] / temp;
+//			y[i] = y[i] / temp;
+//			if (i == k) continue;
+//			for (int j = 0; j < n; j++)
+//				a[i][j] = a[i][j] - a[k][j];
+//			y[i] = y[i] - y[k];
+//		}
+//		k++;
+//	}
+//	//подстановка полученных значений в уравнения
+//	for (k = n - 1; k >= 0; k--)
+//	{
+//		x[k] = y[k];
+//		for (int i = 0; i < k; i++)
+//			y[i] = y[i] - a[i][k] * x[k];
+//	}
+//	return x;
+//}
+//
+//// Функция для копирования двумерного массива (матрицы) типа double
+//double** copyMatrix(double**matr) {
+//	// Выделяем память для новой матрицы
+//	double** matr2 = new double* [3];
+//	for (int i = 0; i < 3; ++i) {
+//		matr2[i] = new double[3];
+//		// Копируем элементы из исходной матрицы в новую
+//		for (int j = 0; j < 3; ++j) {
+//			matr2[i][j] = matr[i][j];
+//		}
+//	}
+//
+//	return matr2;
+//}
+//int main() {
+//	setlocale(LC_ALL, "Ru");
+//	double** matr = new double*[3];
+//	double* b = new double[3];
+//	double* x = new double[3];
+//	cout.precision(11);
+//	for (int i = 0; i < 3; i++) {
+//		matr[i] = new double [3];
+//		for (int j = 0; j < 3; j++)
+//			cin >> matr[i][j];
+//	}
+//	double** matr2 = copyMatrix(matr);
+//	double** matr3 = copyMatrix(matr);
+//
+//	b[0] = erf(0.80);
+//	b[1] = erf(0.90);
+//	b[2] = erf(1.10);
+//	x = gauss(matr, b, 3);
+//	
+//	cout << "значения вектора x: ";
+//	for (int i = 0; i < 3; i++)
+//		cout  << x[i] << " ";
+//	cout << endl;
+//	cout << endl;
+//	//обусловленность(надо комментировать вызов метода гаусса чтобы максимумы были найдены правильно
+//	//cout << "обусловленность: " << endl;
+//	double max = 0;
+//	for (int i = 0; i < 3; i++)
+//		max += matr2[i][0];
+//	int maxj = 0;
+//	for (int j = 0; j < 3; j++) {
+//		double sum = 0;
+//		for (int i = 0; i < 3; i++)
+//		{
+//			sum += abs(matr2[i][j]);
+//		}
+//		if (sum > max) {
+//			max = sum;
+//			maxj = j;
+//		}
+//	}
+//	cout <<"норма изначальной матрицы: " << max << endl;
+//	double** A_inv = new double* [3];
+//	double** mas_reverse = inverseMatrix(matr2, 3);
+//	cout << "обратная матрица: " << endl;
+//	for (int i = 0; i < 3; i++) {
+//		for (int j = 0; j < 3; j++)
+//			cout << mas_reverse[i][j] << " ";
+//		cout << endl;
+//	}
+//	double max2 = 0;
+//	for (int i = 0; i < 3; i++)
+//		max2 += mas_reverse[i][0];
+//	
+//	int maxj2 = 0;
+//	for (int j = 0; j < 3; j++) {
+//		double sum = 0;
+//		for (int i = 0; i < 3; i++)
+//		{
+//			sum += abs(mas_reverse[i][j]);
+//		}
+//		if (sum > max2) {
+//			max2 = sum;
+//			maxj2 = j;
+//		}
+//	}
+//	cout <<"норма обратной матрицы: " << max2 << endl;
+//	double condA = max * max2;
+//	cout <<"обусловленность матрицы: " << condA << endl;
+//	cout << endl;
+//	////невязка, вычисление перемножения матрицы а на вектор x
+//	/*for (int i = 0; i < 3; i++)
+//		cout << x[i] << endl;*/ 
+//	b[0] = erf(0.80);
+//	b[1] = erf(0.90);
+//	b[2] = erf(1.10);
+//	cout << "Ax: ";
+//	double* n = new double[3];
+//	for (int i = 0; i < 3; i++) {
+//		n[i] = 0;
+//		for (int j = 0; j < 3; j++) {
+//			n[i] += matr3[i][j] * x[j];
+//			
+//		}cout << n[i] << " ";
+//	}
+//	cout << endl;
+//	//cout << b[0] << " " << b[1] << " " << b[2] << endl;
+//	cout << "вектор невязки: ";
+//	for (int i = 0; i < 3; i++) {
+//		n[i] = n[i] - b[i];
+//		cout << n[i] << " ";
+//	}
+//	cout << endl;
+//	double norm = 0;
+//	for (int i = 0; i < 3; i++)
+//		norm += pow(n[i], 2);
+//	cout <<"невязка: " <<fixed << sqrt(norm) << endl;
+//	//напечатала x1+x2+x3 и сравнила с erf
+//	cout << endl;
+//	double resX = 0;
+//	for (int i = 0; i < 3; i++)
+//		resX += x[i];
+//	cout << "x1+x2+x3: " << resX << endl;
+//	cout << "erf(1.0): " << erf(1.0) << endl;
