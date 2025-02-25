@@ -1,0 +1,9 @@
+﻿  компсети2.cpp
+C:\Users\yacen\source\repos\компсети2\компсети2\компсети2.cpp(14,66): warning C4267: аргумент: преобразование из "size_t" в "_Ty"; возможна потеря данных
+          with
+          [
+              _Ty=int
+          ]
+C:\Users\yacen\source\repos\компсети2\компсети2\компсети2.cpp(68,17): warning C4244: инициализация: преобразование "__int64" в "long", возможна потеря данных
+C:\Users\yacen\source\repos\компсети2\компсети2\компсети2.cpp(72,24): warning C4244: =: преобразование "__int64" в "long", возможна потеря данных
+  компсети2.vcxproj -> C:\Users\yacen\source\repos\компсети2\x64\Debug\компсети2.exe
