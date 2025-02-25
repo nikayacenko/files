@@ -938,3 +938,74 @@ using namespace std;
 //		resX += x[i];
 //	cout << "x1+x2+x3: " << resX << endl;
 //	cout << "erf(1.0): " << erf(1.0) << endl;
+
+
+
+
+#include <iostream>
+using namespace std;
+double* f(double** a, double* b, int n) {
+    double* x = new double[n];
+    double e = 0.001;
+    double max = 0;
+    do {
+        for (int i = 0; i < n; i++)
+            x[i] = 0;
+        double* p = new double[n];
+        for (int i = 0; i < n; i++)
+            p[i] = x[i];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (i == j) continue;
+                a[i][j] /= -a[i][i];
+            }
+            b[i] /= a[i][i];
+        }
+        for (int i = 0; i < n; i++) {
+            a[i][i] = 1;
+        }
+        for (int i = 0; i < n; i++) {
+            double s = 0;
+            for (int j = 0; j < n; j++) {
+                if (i == j)continue;
+                else s += p[i] * a[i][j];
+            }
+            s += b[i];
+            p[i] = s;
+        }
+        max = abs(p[0] - x[0]);
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (abs(p[i] - x[i]) > max)
+                    max = abs(p[i] - x[i]);
+            }
+        }
+    } while (max > e);
+    return x;
+}
+int main()
+{
+    int n;
+    cin >> n;
+    double** a = new double* [n];
+    for (int i = 0; i < n; i++) {
+        a[i] = new double[n];
+        for (int j = 0; j < n; j++)
+            cin >> a[i][j];
+    }
+    double* b = new double[4];
+    b[0] = 14.78;
+    b[1] = -12.14;
+    b[2] = -11.65;
+    b[3] = 4.26;
+    double* x = f(a, b, n);
+    for (int i = 0; i < n; i++)
+        cout << x[i] << " ";
+
+}
+/*
+12.14 1.32 -0.78 -2.75
+-0.89 16.75 1.88 -1.55
+2.65 -1.27 -15.64 -0.64
+2.44 1.52 1.93 -11.43
+*/
