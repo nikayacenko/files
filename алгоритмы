@@ -42,3 +42,67 @@ int main() {
 	/*for (int i = 0; i < 10; i++)
 		fout << res[i] << endl;*/
 }
+
+
+
+#include <iostream>
+using namespace std;
+#include <vector>
+#include <fstream>
+#include <string>
+int op = 0;
+void Quick(int* mas, int first, int last) {
+	int mid, temp;
+	int f = first, l = last;
+	mid = mas[(f + l) / 2];
+	op += 5;
+	do {
+		if (mas[f] >= mid)
+			op++;
+		while (mas[f] < mid) { 
+			f++;
+			op += 2;
+		}
+		if (mas[f] <= mid)
+			op++;
+		while (mas[l] > mid) {
+			l--;
+			op += 2;
+		}
+		op++;
+		if (f <= l) {
+			temp = mas[f];
+			mas[f] = mas[l];
+			mas[l] = temp;
+			f++;
+			l--;
+			op += 5;
+		}
+		op++;
+	}while (f < l);
+	op++;
+	if (first < l) Quick(mas, first, l);
+	op++;
+	if (f < last) Quick(mas, f, last);
+}
+int main()
+{
+	srand(time(0));
+	vector<double>res(100);
+	ofstream result("file.txt");
+	for (int n = 100,g=0; n <= 10000; n += 100,g++) {
+		for (int k = 0; k < 1000; k++) {
+			int* mas = new int[n];
+			for (int i = 0; i < n; i++) {
+				mas[i] = rand() % 1001;
+			}
+			Quick(mas, 0, n - 1);
+			op = 0;
+			Quick(mas, 0, n - 1);
+			res[g] += op;
+		}
+		result<<n<<" "<<fixed<<to_string(res[g]/1000)<<endl;
+	}
+}
+
+
