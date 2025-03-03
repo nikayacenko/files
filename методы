@@ -944,47 +944,152 @@ using namespace std;
 
 #include <iostream>
 using namespace std;
-double* f(double** a, double* b, int n) {
+double* Jakobi(double** a, double* b, int n) {
+    setlocale(LC_ALL, "Ru");
     double* x = new double[n];
     double e = 0.001;
     double max = 0;
+    for (int i = 0; i < n; i++)
+        x[i] = 0;
+    double* p = new double[n];
+    int k = 0;
+    double** copyA = new double* [n];
+    for (int i = 0; i < n; i++) {
+        copyA[i] = new double[n];
+        for (int j = 0; j < n; j++)
+            copyA[i][j] = a[i][j];
+    }
+    double* copyB = new double[n];
+    for (int i = 0; i < n; i++)
+        copyB[i] = b[i];
+    int i = 1;
     do {
-        for (int i = 0; i < n; i++)
-            x[i] = 0;
-        double* p = new double[n];
-        for (int i = 0; i < n; i++)
-            p[i] = x[i];
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (i == j) continue;
-                a[i][j] /= -a[i][i];
-            }
-            b[i] /= a[i][i];
-        }
-        for (int i = 0; i < n; i++) {
-            a[i][i] = 1;
-        }
+        /*for (int i = 0; i < n; i++)
+            p[i] = x[i];*/
+        double* x_new = new double[n];
         for (int i = 0; i < n; i++) {
             double s = 0;
             for (int j = 0; j < n; j++) {
-                if (i == j)continue;
-                else s += p[i] * a[i][j];
+                if (j == i) continue;
+                else s+= a[i][j] * x[j];
             }
-            s += b[i];
-            p[i] = s;
+            x_new[i] = (1 / a[i][i]) * (b[i] - s);
         }
-        max = abs(p[0] - x[0]);
+        /*for (int i = 0; i < n; i++)
+            cout << x_new[i] << " ";
+        cout << endl;
+        cout << endl;*/
+
         for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (abs(p[i] - x[i]) > max)
-                    max = abs(p[i] - x[i]);
-            }
+            max = abs(x_new[i] - x[i]);
+            if (abs(x_new[i] - x[i]) > max)
+                max = abs(x_new[i] - x[i]);
         }
+        for (int i = 0; i < n; i++)
+            x[i] = x_new[i];
+        //for (int i = 0; i < n; i++)
+        //    cout << x[i] << " ";
+        //cout << endl;
+        //cout << endl;
+        double* nv = new double[n];
+        for (int i = 0; i < n; i++) {
+        	nv[i] = 0;
+        	for (int j = 0; j < n; j++) {
+        		nv[i] += a[i][j] * x[j];
+        			
+        	}//cout << n[i] << " ";
+        }
+        //cout << "вектор невязки: ";
+        for (int i = 0; i < n; i++) {
+        	nv[i] = b[i] - nv[i];
+        	//cout << nv[i] << " ";
+        }
+        //cout << endl;
+        double norm = 0;
+        for (int i = 0; i < 3; i++)
+        	norm += pow(nv[i], 2);
+        cout <<"итерация "<<i<<" невязка: " <<fixed << sqrt(norm) << endl;
+        //cout << endl;
+        k++;
+        i++;
+    } while (max>e);
+    return x;
+}
+double* Zeidel(double** a, double* b, int n) {
+    setlocale(LC_ALL, "Ru");
+    double* x = new double[n];
+    double e = 0.001;
+    double max = 0;
+    for (int i = 0; i < n; i++)
+        x[i] = 0;
+    double* p = new double[n];
+    int k = 0;
+    double** copyA = new double* [n];
+    for (int i = 0; i < n; i++) {
+        copyA[i] = new double[n];
+        for (int j = 0; j < n; j++)
+            copyA[i][j] = a[i][j];
+    }
+    double* copyB = new double[n];
+    for (int i = 0; i < n; i++)
+        copyB[i] = b[i];
+    int i = 1;
+    do {
+        /*for (int i = 0; i < n; i++)
+            p[i] = x[i];*/
+        double* x_new = new double[n];
+        for (int i = 0; i < n; i++) {
+            double s = 0;
+            for (int j = 0; j < n; j++) {
+                if (j == i) continue;
+                if (i > j) s += a[i][j] * x_new[j];
+                if (j > i) s += a[i][j] * x[j];
+            }
+            x_new[i] = (1 / a[i][i]) * (b[i] - s);
+        }
+        /*for (int i = 0; i < n; i++)
+            cout << x_new[i] << " ";
+        cout << endl;
+        cout << endl;*/
+
+        for (int i = 0; i < n; i++) {
+            max = abs(x_new[i] - x[i]);
+            if (abs(x_new[i] - x[i]) > max)
+                max = abs(x_new[i] - x[i]);
+        }
+        for (int i = 0; i < n; i++)
+            x[i] = x_new[i];
+        //for (int i = 0; i < n; i++)
+        //    cout << x[i] << " ";
+        //cout << endl;
+        //cout << endl;
+        double* nv = new double[n];
+        for (int i = 0; i < n; i++) {
+            nv[i] = 0;
+            for (int j = 0; j < n; j++) {
+                nv[i] += a[i][j] * x[j];
+
+            }//cout << n[i] << " ";
+        }
+        //cout << "вектор невязки: ";
+        for (int i = 0; i < n; i++) {
+            nv[i] = b[i] - nv[i];
+            //cout << nv[i] << " ";
+        }
+        //cout << endl;
+        double norm = 0;
+        for (int i = 0; i < 3; i++)
+            norm += pow(nv[i], 2);
+        cout << "итерация " << i << " невязка: " << fixed << sqrt(norm) << endl;
+        //cout << endl;
+        k++;
+        i++;
     } while (max > e);
     return x;
 }
 int main()
 {
+    setlocale(LC_ALL, "Ru");
     int n;
     cin >> n;
     double** a = new double* [n];
@@ -998,10 +1103,19 @@ int main()
     b[1] = -12.14;
     b[2] = -11.65;
     b[3] = 4.26;
-    double* x = f(a, b, n);
+    cout << "Якоби: " << endl;
+    double* x = Jakobi(a, b, n);
+    cout << "x: ";
     for (int i = 0; i < n; i++)
         cout << x[i] << " ";
-
+    cout << endl;
+    cout << endl;
+    cout << "Зейдель: " << endl;
+    x = Zeidel(a, b, n);
+    cout << "x: ";
+    for (int i = 0; i < n; i++)
+        cout << x[i] << " ";
+    
 }
 /*
 12.14 1.32 -0.78 -2.75
