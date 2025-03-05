@@ -273,3 +273,105 @@ int main()
     }
 }
 ///
+#include<iostream>
+#include<fstream>
+#include<conio.h>
+using namespace std;
+#include <string>
+#include <random>
+#include <algorithm>
+#include <deque>
+#include <windows.h>
+string generateRandomId(int length) {
+	const string characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+	random_device random_device;
+	mt19937 generator(random_device());
+	uniform_int_distribution<> distribution(0, characters.size() - 1);
+
+	string random_id;
+	for (int i = 0; i < length; ++i) {
+		random_id += characters[distribution(generator)];
+	}
+	return random_id;
+}
+struct Student {
+	string id;
+	double mark;
+}student;
+void main() {
+	setlocale(LC_ALL, "Ru");
+	//Student student;
+	ofstream out("file.bin", ios::binary);
+	ifstream in;
+	long size;
+	int a;
+	while (1) {
+		cout << "введите оценки: ";
+		student.id = generateRandomId(4);
+		for (int i = 0; i < 1; i++)
+			cin >> student.mark;
+		out.open("file.bin", ios::app | ios::binary);
+		out.write((char*)&student, sizeof(student));
+		out.close();
+		in.open("../../repos/aooa2/aooa2/result.bin");
+		in.seekg(0, ios::end);
+		size = in.tellg();
+		while (size >= in.tellg()) {
+			Sleep(100);
+			in.seekg(0, ios::end);
+		}
+		in.seekg(size, ios::beg);
+		in.read((char*)&a, sizeof(a));
+		in.close();
+		cout << 1 << endl;
+		switch (a) {
+		case 0: {cout << "стипендия равна 3128\n"; break; }
+		case 1: {cout << "стипендия равна 2100\n"; break; }
+		case 2: {cout << "стипендия равна 0\n"; break; }
+		}
+	}
+}
+#include<iostream>
+#include<fstream>
+#include<conio.h>
+using namespace std;
+#include <string>
+#include <random>
+#include <algorithm>
+#include <deque>
+#include <windows.h>
+struct Student {
+	string id;
+	double mark;
+}student;
+int a;
+long size_p;
+int main()
+{
+	setlocale(LC_ALL, "Ru");
+    ofstream out;
+	ifstream in;
+	in.open("../../repos/aooa/aooa/file.bin");
+	in.seekg(0, ios::end);
+	size_p = in.tellg();
+	in.close();
+	while (1) {
+		in.open("../../repos/aooa/aooa/file.bin");
+		in.seekg(0, ios::end);
+		while (size_p >= in.tellg()) {
+			Sleep(100);
+			in.seekg(size_p, ios::beg);
+		}
+		cout << 1 << endl;
+		in.read((char*)&student, sizeof(student));
+		size_p = in.tellg();
+		in.close();
+		if (student.mark == 5) a = 0;
+		if (student.mark == 4) a = 1;
+		if (student.mark == 3) a = 2;
+		out.open("result.bin");
+		out.write((char*)&a, sizeof(a));
+		out.close();
+	}
+}
+
