@@ -106,3 +106,93 @@ int main()
 }
 
 
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+#include <string>
+#include <vector>
+using namespace std;
+const int base = 16;
+int convert(char c) {
+	if (isdigit(c)) {
+		return c - '0';
+	}
+	else if (isupper(c)) {
+		return c - 'A' + 10;
+	}
+	else if (islower(c)) {
+		return c - 'a' + 36;
+	}
+}
+char invert(int c) {
+	if (c >= 0 && c <= 9)
+		return c + '0';
+	else if (c >= 10 && c <= 35)
+		return c - 10 + 'A';
+	else if (c >= 36 && c <= 61)
+		return c - 36 + 'a';
+}
+string plusZero(string n, int l) {
+	while (n.length() < l) {
+		n = '0' + n;
+	}
+	return n;
+}
+string add(string num1, string num2) {
+	int maxLength = max(num1.length(), num2.length());
+	num1 = plusZero(num1, maxLength);
+	num2 = plusZero(num2, maxLength);
+	string result = "";
+	int carry = 0;
+	for (int i = maxLength - 1; i >= 0; i--) {
+		int digit1 = convert(num1[i]);
+		int digit2 = convert(num2[i]);
+		int sum = digit1 + digit2 + carry;
+		carry = sum / base;
+		result = invert(sum % base) + result;
+	}
+	if (carry > 0) {
+		result = invert(carry) + result;
+	}
+	return result;
+}
+string sub(string num1, string num2) {
+	int maxLength = max(num1.length(), num2.length());
+	num1 = plusZero(num1, maxLength);
+	num2 = plusZero(num2, maxLength);
+	string result = "";
+	int carry = 0;
+	for (int i = maxLength - 1; i >= 0; i--) {
+		int digit1 = convert(num1[i]);
+		int digit2 = convert(num2[i]);
+		int dif = digit1 - digit2 - carry;
+		if (dif < 0) {
+			carry = 1;
+			dif += base;
+		}
+		else {
+			carry = 0;
+		}
+		result = invert(dif) + result;
+		size_t z = result.find_first_not_of('0');
+		if (z == string::npos) {
+			return "0";
+		}
+		else {
+			return result.substr(z);
+		}
+	}
+}
+string sh(string num) {
+	return num + '0';
+}
+int main()
+{
+	string s1, s2;
+	cin >> s1;
+	cin >> s2;
+	cout << add(s1, s2)<<endl;
+	cout << sub(s1, s2) << endl;
+	
+}
+
