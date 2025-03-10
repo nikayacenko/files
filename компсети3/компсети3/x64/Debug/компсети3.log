@@ -1,0 +1,5 @@
+﻿  компсети3.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.37.32822\include\filesystem(13): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
+C:\Users\yacen\source\repos\компсети3\компсети3\компсети3.cpp(288,17): warning C4244: инициализация: преобразование "__int64" в "long", возможна потеря данных
+C:\Users\yacen\source\repos\компсети3\компсети3\компсети3.cpp(292,24): warning C4244: =: преобразование "__int64" в "long", возможна потеря данных
+  компсети3.vcxproj -> C:\Users\yacen\source\repos\компсети3\x64\Debug\компсети3.exe
