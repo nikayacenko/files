@@ -1691,3 +1691,302 @@ int main() {
 	y1_v = { 4,-2,6,-3 };
 
 }
+
+
+#include <iostream>
+using namespace std;
+#include <vector>
+#define _USE_MATH_DEFINES
+#include <cmath>
+#include <fstream>
+const double PI = 2 * acos(0.0);
+//double* gauss(double** a, double* y, int n)
+//{
+//	double* x, max;
+//	int k, ind;
+//	x = new double[n];
+//	k = 0;
+//	const long double eps = 0.00001;
+//	//поиск строки с макс первым элементом
+//	while (k < n) {
+//		max = abs(a[k][k]);
+//		ind = k;
+//		for (int i = k + 1; i < n; i++) {
+//			if (abs(a[i][k]) > max)
+//			{
+//				max = abs(a[i][k]);
+//				ind = i;
+//			}
+//		}
+//		//перестановка строк
+//		for (int j = 0; j < n; j++)
+//		{
+//			double temp = a[k][j];
+//			a[k][j] = a[ind][j];
+//			a[ind][j] = temp;
+//		}
+//		double temp = y[k];
+//		y[k] = y[ind];
+//		y[ind] = temp;
+//		//нормализация
+//		for (int i = k; i < n; i++)
+//		{
+//			double temp = a[i][k];
+//			if (abs(temp) <= eps) continue;
+//			for (int j = k; j < n; j++)
+//				a[i][j] = a[i][j] / temp;
+//			y[i] = y[i] / temp;
+//			if (i == k) continue;
+//			for (int j = 0; j < n; j++)
+//				a[i][j] = a[i][j] - a[k][j];
+//			y[i] = y[i] - y[k];
+//		}
+//		k++;
+//	}
+//	//подстановка полученных значений в уравнения
+//	for (k = n - 1; k >= 0; k--)
+//	{
+//		x[k] = y[k];
+//		for (int i = 0; i < k; i++)
+//			y[i] = y[i] - a[i][k] * x[k];
+//	}
+//	return x;
+//}
+vector<double> gauss(vector<vector<double>>& a, vector<double>& y) {
+	int n = y.size(); // Размерность системы
+	vector<double> x(n);  // Вектор решений
+	double max;
+	int k, ind;
+	const long double eps = 0.00001;
+
+	for (k = 0; k < n; ++k) {
+		// Поиск строки с максимальным по модулю элементом в k-ом столбце
+		max = abs(a[k][k]);
+		ind = k;
+		for (int i = k + 1; i < n; ++i) {
+			if (abs(a[i][k]) > max) {
+				max = abs(a[i][k]);
+				ind = i;
+			}
+		}
+
+		// Перестановка строк, если необходимо
+		if (ind != k) {
+			swap(a[k], a[ind]);
+			swap(y[k], y[ind]);
+		}
+
+		// Прямой ход (приведение к верхнетреугольному виду)
+		for (int i = k + 1; i < n; ++i) {
+			double factor = a[i][k] / a[k][k];
+			for (int j = k; j < n; ++j) {
+				a[i][j] -= factor * a[k][j];
+			}
+			y[i] -= factor * y[k];
+		}
+	}
+
+	// Обратный ход (нахождение решений)
+	for (k = n - 1; k >= 0; --k) {
+		x[k] = y[k];
+		for (int i = k + 1; i < n; ++i) {
+			x[k] -= a[k][i] * x[i];
+		}
+		x[k] /= a[k][k];
+	}
+
+	return x;
+}
+
+double inter_Lagr(vector<double>& x_v, vector<double>& y_v, double x, int n) {
+	double result = 0;
+	for (int i = 0; i < n; i++) {
+		double y0 = y_v[i];
+		for (int j = 0; j < n; j++) {
+			if(i!=j)
+				y0 *= ((x - x_v[j]) / (x_v[i] - x_v[j]));
+		}
+		result += y0;
+	}
+	return result;
+}
+vector<double> nodes(double a, double b, int num_nodes) {
+	vector<double> nodes(num_nodes);
+	double step = (b - a) / (num_nodes - 1);
+	for (int i = 0; i < num_nodes; ++i) {
+		nodes[i] = a + i * step;
+	}
+	return nodes;
+}
+vector<double> chebyshev_nodes(double start, double end, int num_nodes) {
+	vector<double> nodes(num_nodes);
+	for (int i = 0; i < num_nodes; ++i) {
+		nodes[i] = 0.5 * (start + end) + 0.5 * (end - start) * cos(PI * (2 * i + 1) / (2 * num_nodes));
+	}
+	return nodes;
+}
+double f(double x) {
+	return 1 / (1 + 25 * pow(x, 2));
+}
+double fp(double x) {
+	return -50 * x / pow((1 + 25 * pow(x, 2)), 2);
+}
+double fpp(double x) {
+	return (3750*pow(x,2)-50)/ pow((1 + 25 * pow(x, 2)), 3);
+}
+vector<double> s(double x, int p) {
+	vector<double>res(4);
+	if (p == 0) {
+		res[0] = pow(x, 3);
+		res[1] = pow(x, 2);
+		res[2] = x;
+		res[3] = 1;
+		//res[4] = f(x);
+		return res;
+	}
+	if (p == 1) {
+		res[0] = 3 * pow(x, 2);
+		res[1] = 2 * x;
+		res[2] = 1;
+		res[3] = 0;
+		//res[4] = fp(x);
+		return res;
+	}
+	if (p == 2) {
+		res[0] = 6 * x;
+		res[1] = 2;
+		res[2] = 0;
+		res[3] = 0;
+		//res[4] = fpp(x);
+		return res;
+	}
+}
+double S(vector<double> x, vector<double> y, int A, int B, int n, double xx) {
+	double h = (double)(B - A) / (n - 1);
+
+	vector<double> c(n + 1);
+	vector<double>k(n + 1);
+	k[1] = 0;//граничное условие
+	c[1] = 0;//граничное условие
+	for (int i = 2; i < n; i++) { //решение трехдиагональной системы
+		double a = x[i] - x[i - 1];
+		double b = x[i - 1] - x[i - 2];
+		double r = 2 * (a + b) - b * c[i - 1];
+		c[i] = a / r;//вычисление коэффициента c
+		k[i] = (3.0 * ((y[i] - y[i - 1]) / h - (y[i - 1] - y[i - 2]) / h) - h * k[i - 1]) / r;
+		//вычисление коэффициента k
+	}
+
+	c[n] = k[n];//установка последнего коэффициента
+	for (int i = n - 2; i >= 2; i--) {//обратный ход прогонки
+		c[i] = k[i] - c[i] * c[i + 1];
+	}
+
+	int i = 0;
+	while (xx >= x[i] && i != (n - 1)) { //определение интервала в который попадпет xx
+		i++;
+	}
+	double j, a, b, q, r, p, d, p1, p2;
+	j = i - 1;//индекс левой границы  интервала
+	a = y[j];//значение функции в левой границе
+	b = x[j];//x координата левой границы
+	q = x[i] - b;//длина текущего интервала
+	r = xx - b;//расстояние от xx до левой границы
+	p = c[i];//вторая производная
+	d = c[i + 1];//вторая производная следующего узла
+	b = ((y[i] - a) / q) - ((d + 2 * p) * q / 3.0);//коэффициент b
+	d = (d - p) / q * r;//коэффициент d
+	p1 = b + r * (2 * p + d);//коэффициент p1
+	p2 = 2 * (p + d);//коэффициент p2
+	p = a + r * (b + r * (p + d / 3.0));//вычисление значения сплайна в точке xx
+
+	return p;
+}
+void splain(int n, double start, double end) {
+	vector<double>x_i = nodes(start, end, n);
+	vector<double>k;
+	vector<double>b(4);
+	vector<vector<double>>matr(4);
+	for (int i = 0; i < n-1; i++) {
+		matr[0] = s(x_i[i],0);
+		matr[1] = s(x_i[i + 1],0);
+		matr[2] = s(x_i[i],1);
+		matr[3] = s(x_i[i+1],1);
+		b[0] = f(x_i[i]);
+		b[1] = f(x_i[i + 1]);
+		b[2] = fp(x_i[i]);
+		b[3] = fp(x_i[i+1]);
+
+		k = gauss(matr, b);
+		//cout << k[0] << " " << k[1] << " " << k[2] << " " << k[3] << endl;
+		for (double x = (2 / double(n - 1)) * i - 1; x <= (2 / double(n - 1)) * (i + 1) - 1; x += 0.1) {
+			cout<<fixed << x << "   " << k[3] + k[2] * pow(x, 1) +
+				k[1] * pow(x, 2) + k[0] * pow(x, 3) << endl;
+		}
+	}
+}
+
+int main() {
+	setlocale(LC_ALL, "Ru");
+	ofstream out("file.txt");
+	double a = -1;
+	double b = 1;
+	int n = 21;
+	vector<double> x1_v = nodes(a, b, n);
+	vector<double> x2_v = chebyshev_nodes(a, b, n);
+	vector<double> y1_v(n);
+	vector<double> y2_v(n);
+	for (int i = 0; i < n; i++) {
+		y1_v[i] = f(x1_v[i]);
+		y2_v[i] = f(x2_v[i]);
+	}
+	for (int i = 0; i < n; i++)
+		cout << x1_v[i] << " ";
+	cout << endl;
+	for (int i = 0; i < n; i++)
+		cout << y1_v[i] << " ";
+	cout << endl;
+	double fx2 = 0;
+	cout << "значения исходной функции: " << endl;
+	for (double i = -1; i <= 1; i+=0.1) {
+		out << i << " " << f(i) << endl;
+		cout << i << " " << f(i) << endl;
+	}
+	out << endl;
+	double x = 0;
+	double x_i = 0;
+	cout << "ИП Лагранжа для равноотстоящих узлов: " << endl;
+	for (double i = -1; i <= 1; i += 0.1) {
+		//x = i;
+		x_i = inter_Lagr(x1_v, y1_v,i, n);
+		out << i << " " << x_i << endl;
+		cout << i << " " << x_i << endl;
+	}
+	out << endl;
+	cout << endl;
+	cout << "ИП Лагранжа для чебышевских узлов: " << endl;
+	for (double i = -1; i <= 1; i += 0.1) {
+		//x = i;
+		x_i = inter_Lagr(x2_v, y2_v, i, n);
+		out << i << " " << x_i << endl;
+		cout << i << " " << x_i << endl;
+	}
+	cout << "отклонение ИП от исходной функции для равноотсоящих узлов: " << endl;
+	for (double i = -1; i <= 1; i += 0.1) {
+		cout << i << " " << abs(f(i) - inter_Lagr(x1_v, y1_v, i, n)) << endl;
+	}
+	cout << "отклонение ИП от исходной функции для чебышевских узлов: " << endl;
+	for (double i = -1; i <= 1; i += 0.1) {
+		cout << i << " " << abs(f(i) - inter_Lagr(x2_v, y2_v, i, n)) << endl;
+	}
+	cout << endl;
+	//сплайны
+	splain(n,a, b);
+	cout << endl;
+	x1_v = { 2,3,5,7 };
+	y1_v = { 4,-2,6,-3 };
+	for (double i = 2; i <= 7; i += 0.2) {
+		cout << i << " " << S(x1_v, y1_v, 2, 7, 4, i) << endl;
+	}
+
+}
