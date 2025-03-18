@@ -1990,3 +1990,172 @@ int main() {
 	}
 
 }
+
+
+#include <iostream>
+using namespace std;
+#include <vector>
+//e = 0.0001;
+//значения a b c округлить до 0.01
+//double* gauss(double** a, double* y, int n)
+//{
+//	double* x, max;
+//	int k, ind;
+//	x = new double[n];
+//	k = 0;
+//	const long double eps = 0.00001;
+//	//поиск строки с макс первым элементом
+//	while (k < n) {
+//		max = abs(a[k][k]);
+//		ind = k;
+//		for (int i = k + 1; i < n; i++) {
+//			if (abs(a[i][k]) > max)
+//			{
+//				max = abs(a[i][k]);
+//				ind = i;
+//			}
+//		}
+//		//перестановка строк
+//		for (int j = 0; j < n; j++)
+//		{
+//			double temp = a[k][j];
+//			a[k][j] = a[ind][j];
+//			a[ind][j] = temp;
+//		}
+//		double temp = y[k];
+//		y[k] = y[ind];
+//		y[ind] = temp;
+//		//нормализация
+//		for (int i = k; i < n; i++)
+//		{
+//			double temp = a[i][k];
+//			if (abs(temp) <= eps) continue;
+//			for (int j = k; j < n; j++)
+//				a[i][j] = a[i][j] / temp;
+//			y[i] = y[i] / temp;
+//			if (i == k) continue;
+//			for (int j = 0; j < n; j++)
+//				a[i][j] = a[i][j] - a[k][j];
+//			y[i] = y[i] - y[k];
+//		}
+//		k++;
+//	}
+//	//подстановка полученных значений в уравнения
+//	for (k = n - 1; k >= 0; k--)
+//	{
+//		x[k] = y[k];
+//		for (int i = 0; i < k; i++)
+//			y[i] = y[i] - a[i][k] * x[k];
+//	}
+//	return x;
+//}
+vector<double> gauss(vector<vector<double>>& a, vector<double>& y) {
+	int n = y.size(); // Размерность системы
+	vector<double> x(n);  // Вектор решений
+	double max;
+	int k, ind;
+	const long double eps = 0.0001;
+
+	for (k = 0; k < n; ++k) {
+		// Поиск строки с максимальным по модулю элементом в k-ом столбце
+		max = abs(a[k][k]);
+		ind = k;
+		for (int i = k + 1; i < n; ++i) {
+			if (abs(a[i][k]) > max) {
+				max = abs(a[i][k]);
+				ind = i;
+			}
+		}
+
+		// Перестановка строк, если необходимо
+		if (ind != k) {
+			swap(a[k], a[ind]);
+			swap(y[k], y[ind]);
+		}
+
+		// Прямой ход (приведение к верхнетреугольному виду)
+		for (int i = k + 1; i < n; ++i) {
+			double factor = a[i][k] / a[k][k];
+			for (int j = k; j < n; ++j) {
+				a[i][j] -= factor * a[k][j];
+			}
+			y[i] -= factor * y[k];
+		}
+	}
+
+	// Обратный ход (нахождение решений)
+	for (k = n - 1; k >= 0; --k) {
+		x[k] = y[k];
+		for (int i = k + 1; i < n; ++i) {
+			x[k] -= a[k][i] * x[i];
+		}
+		x[k] /= a[k][k];
+	}
+
+	return x;
+}
+
+
+vector<double>x = { 1,2,3,4,5,6 };
+vector<double>y = { 1,1.5,3,4.5,7,8.5 };
+double sumx(vector<double>x) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++)
+		s += x[i];
+	return s;
+}
+double sumy(vector<double>y) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++)
+		s += y[i];
+	return s;
+}
+double q(vector<double>x) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++)
+		s += pow(x[i], 2);
+	return s;
+}
+double xy(vector<double>x, vector<double>y) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++)
+		s += x[i] * y[i];
+	return s;
+}
+
+double sumxLN(vector<double>x) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++)
+		s += log(x[i]);
+	return s;
+}
+double sumyLN(vector<double>y) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++)
+		s += log(y[i]);
+	return s;
+}
+double qLN(vector<double>x) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++)
+		s += log(pow(x[i], 2));
+	return s;
+}
+double xyLN(vector<double>x, vector<double>y) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++)
+		s += log(x[i] * y[i]);
+	return s;
+}
+
+vector<vector<double>> matrix1 = { {q(x),sumx(x)},{sumx(x),(double)x.size()} };
+vector<double>b = { 117, 25.5 };
+vector<vector<double>> matrix2 = { {q(x),sumx(x)},{sumx(x),(double)x.size()} };
+
+int main() {
+
+	vector<double>res = gauss(matrix1, b);
+	for (int i = 0; i < res.size(); i++)
+		cout << res[i] << " ";
+
+}
