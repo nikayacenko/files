@@ -2159,3 +2159,258 @@ int main() {
 		cout << res[i] << " ";
 
 }
+
+
+#include <iostream>
+using namespace std;
+#include <iomanip>
+#include <vector>
+vector<double> gauss(vector<vector<double>>& a, vector<double>& y) {
+	int n = y.size(); // Размерность системы
+	vector<double> x(n);  // Вектор решений
+	double max;
+	int k, ind;
+	const long double eps = 0.0001;
+
+	for (k = 0; k < n; ++k) {
+		// Поиск строки с максимальным по модулю элементом в k-ом столбце
+		max = abs(a[k][k]);
+		ind = k;
+		for (int i = k + 1; i < n; ++i) {
+			if (abs(a[i][k]) > max) {
+				max = abs(a[i][k]);
+				ind = i;
+			}
+		}
+
+		// Перестановка строк, если необходимо
+		if (ind != k) {
+			swap(a[k], a[ind]);
+			swap(y[k], y[ind]);
+		}
+
+		// Прямой ход (приведение к верхнетреугольному виду)
+		for (int i = k + 1; i < n; ++i) {
+			double factor = a[i][k] / a[k][k];
+			for (int j = k; j < n; ++j) {
+				a[i][j] -= factor * a[k][j];
+			}
+			y[i] -= factor * y[k];
+		}
+	}
+
+	// Обратный ход (нахождение решений)
+	for (k = n - 1; k >= 0; --k) {
+		x[k] = y[k];
+		for (int i = k + 1; i < n; ++i) {
+			x[k] -= a[k][i] * x[i];
+		}
+		x[k] /= a[k][k];
+		//x[k] = round(x[k] / 0.01) * 0.01;
+	}
+	// Округляем результат до 0.01
+	for (int i = 0; i < n; ++i) {
+		x[i] = round(x[i] / 0.01) * 0.01;
+	}
+	return x;
+}
+
+
+//vector<double>x = { 1,2,3,4,5,6 };
+//vector<double>y = { 1,1.5,3,4.5,7,8.5 };
+//vector<double>x = { 3,5,7,9,11,13 };
+//vector<double>y = {26,76,150,240,360,500};
+//vector<double>x = { 2,4,6,8,10,12 };
+//vector<double>y = { 2.4,2.9,3,3.5,3.6,3.7 };
+vector<double>x = { 2,5,8,11,14,17 };
+vector<double>y = { 4.8,8.8,12.1,15,17.4,19.7 };
+double sumx(vector<double>x) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++)
+	{
+		s += x[i];
+		s = round(s / 0.0001) * 0.0001;
+	}
+	return s;
+}
+double sumy(vector<double>y) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++) {
+		s += y[i];
+		s = round(s / 0.0001) * 0.0001;
+	}
+	return s;
+}
+double q(vector<double>x) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++) {
+		s += pow(x[i], 2);
+		s = round(s / 0.0001) * 0.0001;
+	}
+	return s;
+}
+double xy(vector<double>x, vector<double>y) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++) {
+		s += x[i] * y[i];
+		s = round(s / 0.0001) * 0.0001;
+	}
+	return s;
+}
+
+double sumxLN(vector<double>x) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++) {
+		s += log(x[i]);
+		s = round(s / 0.0001) * 0.0001;
+	}
+	return s;
+}
+double sumyLN(vector<double>y) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++) {
+		s += log(y[i]);
+		s = round(s / 0.0001) * 0.0001;
+	}
+	return s;
+}
+double qLN(vector<double>x) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++) {
+		s += (pow(log(x[i]), 2));
+		s = round(s / 0.0001) * 0.0001;
+	}
+	return s;
+}
+double xyLN(vector<double>x, vector<double>y) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++) {
+		s += log(x[i]) * log(y[i]);
+		s = round(s / 0.0001) * 0.0001;
+	}
+	return s;
+}
+
+double sumyE(vector<double>y) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++) {
+		s += log(y[i]);
+		s = round(s / 0.0001) * 0.0001;
+	}
+	return s;
+}
+double xyE(vector<double>x, vector<double>y) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++) {
+		s += x[i] * log(y[i]);
+		s = round(s / 0.0001) * 0.0001;
+	}
+	return s;
+}
+
+double fourX(vector<double>x) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++) {
+		s += pow(x[i], 4);
+		s = round(s / 0.0001) * 0.0001;
+	}
+	return s;
+}
+double threeX(vector<double>x) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++) {
+		s += pow(x[i], 3);
+		s = round(s / 0.0001) * 0.0001;
+	}
+	return s;
+}
+double qXy(vector<double>x, vector<double>y) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++) {
+		s += pow(x[i], 2) * y[i];
+		s = round(s / 0.0001) * 0.0001;
+	}
+	return s;
+}
+
+vector<vector<double>> matrix1 = { {q(x),sumx(x)},{sumx(x),(double)x.size()} };
+vector<double>b1 = { xy(x,y), sumy(y)};
+vector<vector<double>> matrix2 = { {qLN(x),sumxLN(x)},{sumxLN(x),(double)x.size()} };
+vector<double>b2 = { xyLN(x,y), sumyLN(y) };
+vector<vector<double>> matrix3 = { {q(x),sumx(x)},{sumx(x),(double)x.size()} };
+vector<double>b3 = { xyE(x,y), sumyE(y) };
+vector<vector<double>> matrix4 = { {fourX(x),threeX(x), q(x)},{threeX(x),q(x),sumx(x)},{q(x),sumx(x),(double)x.size()}};
+vector<double>b4 = { qXy(x,y), xy(x,y),sumy(y)};
+
+double p(vector<double>x, vector<double>res, vector<double>y) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++) {
+		s += pow(y[i] - (res[0] * x[i] + res[1]), 2);
+		s = round(s / 0.0001) * 0.0001;
+	}
+	return s;
+}
+double p2(vector<double>x, vector<double>res, vector<double>y) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++) {
+		s += pow(y[i] - (exp(res[1]) * pow(x[i], res[0])), 2);
+		s = round(s / 0.0001) * 0.0001;
+	}
+	return s;
+}
+double p3(vector<double>x, vector<double>res, vector<double>y) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++) {
+		s += pow(y[i] - (exp(res[1]) * exp(res[0] * x[i])), 2);
+		s = round(s / 0.0001) * 0.0001;
+	}
+	return s;
+}
+double p4(vector<double>x, vector<double>res, vector<double>y) {
+	double s = 0;
+	for (int i = 0; i < x.size(); i++) {
+		s += pow(y[i] - (res[0] * pow(x[i], 2) + res[1] * x[i] + res[2]), 2);
+		s = round(s / 0.0001) * 0.0001;
+	}
+	return s;
+}
+int main() {
+	setlocale(LC_ALL, "Ru");
+	//cout << fixed << setprecision(4);
+	vector<double>x = { 2,5,8,11,14,17 };
+	vector<double>y = { 4.8,8.8,12.1,15,17.4,19.7 };
+	vector<double>res1 = gauss(matrix1, b1);
+	cout << "y=" << res1[0] << "x-(" << res1[1] << ")" << endl;
+	cout << endl;
+	vector<double>res2 = gauss(matrix2, b2);
+	cout << "y=" << exp(res2[1]) << "*x^(" << res2[0] << ")" << endl;
+	cout << endl;
+	vector<double>res3 = gauss(matrix3, b3);
+	cout << "y=" << exp(res3[1]) << "*e^(" << res3[0] << "x)" << endl;
+	cout << endl;
+	vector<double>res4 = gauss(matrix4, b4);
+	cout << "y=" << res4[0] << "x^2+(" << res4[1] << ")x+(" << res4[2]<<")" << endl;
+	cout << endl;
+	cout << "y=" << res1[0] << "x-(" << res1[1] << ")" << endl;
+	for (int i = 0; i < x.size(); i++)
+		cout << res1[0] * x[i] + res1[1] << endl;
+	cout << endl;
+	cout << "y=" << exp(res2[1]) << "*x^(" << res2[0] << ")" << endl;
+	for (int i = 0; i < x.size(); i++)
+		cout << exp(res2[1]) * pow(x[i],res2[0]) << endl;
+	cout << endl;
+	cout << "y=" << exp(res3[1]) << "*e^(" << res3[0] << "x)" << endl;
+	for (int i = 0; i < x.size(); i++)
+		cout << exp(res3[1]) * exp(res3[0] * x[i]) << endl;
+	cout << endl;
+	cout << "y=" << res4[0] << "x^2+(" << res4[1] << ")x+(" << res4[2] << ")" << endl;
+	for (int i = 0; i < x.size(); i++)
+		cout << res4[0] * pow(x[i], 2) + res4[1] * x[i] + res4[2] << endl;
+	cout << endl;
+	cout << "погрешности:" << endl;
+	cout <<"S1: "<< p(x, res1, y) << endl;
+	cout <<"S2: "<< p2(x, res2, y) << endl;
+	cout <<"S3: "<< p3(x, res3, y) << endl;
+	cout <<"S4: "<< p4(x, res4, y) << endl;
+}
+
