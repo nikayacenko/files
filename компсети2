@@ -1,0 +1,535 @@
+//эхо
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#include <iostream>
+#include <string>
+#include <vector>
+#include <thread>
+
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+
+using namespace std;
+// Константы
+const int PORT = 12345; // Порт для прослушивания
+const int BUFFER_SIZE = 1024;
+
+
+int main() {
+    setlocale(LC_ALL, "Ru");
+    char buff[1024];
+    if (WSAStartup(0x0202, (WSADATA*)&buff[0]))
+    {
+        cout << "Error WSAStartup \n" << WSAGetLastError();
+        // Ошибка!
+        return -1;
+    }
+
+    // 1. Создание сокета
+    SOCKET serverSocket = socket(AF_INET, SOCK_DGRAM, 0);
+    if (serverSocket == INVALID_SOCKET) {
+        cerr << "Не удалось создать сокет." << std::endl;
+        return 1;
+    }
+
+    // 2. Настройка адреса сервера
+    sockaddr_in serverAddress;
+    //struct sockaddr_in
+    //{
+    //    short sin_family; // адресное пространство
+    //    // (AF_INET для IPv4)
+    //    u_short sin_port; // порт
+    //    struct in_addr sin_addr; // IP-адрес
+    //    char sin_zero[8]; // хвост
+    //};
+
+    serverAddress.sin_family = AF_INET;
+    serverAddress.sin_addr.s_addr = INADDR_ANY; // Слушаем на всех интерфейсах
+    //При инициализации сокета в этой структуре необходимо указать IP - адрес, с которым будет работать данный сокет.Если сокет
+    //    будет работать с любым адресом(например, в случае приложениясервера, доступного из узлов с любым адресом), адрес для сокета
+    //    можно указать следующим образом :
+    //sockaddr_in sin;
+    //sin.sin_addr.s_addr = INADDR_ANY;
+    serverAddress.sin_port = htons(PORT); // Преобразуем порт в сетевой порядок байтов
+
+    // 3. Привязка сокета к адресу
+    //int bind(socket s, const struct sockaddr far *
+    //    name, int namelen);
+    //Первым аргументом передается дескриптор сокета, возвращенный функцией socket, за ним следуют указатель на структуру
+    //    sockaddr и ее длина.
+    //    В случае ошибки функция bind возвращает значение
+    //    SOCKET_ERROR.Анализ причин ошибки следует выполнять при
+    //    помощи функции WSAGetLastError.
+    if (bind(serverSocket, (sockaddr*)&serverAddress, sizeof(serverAddress)) < 0) {
+        cerr << "Не удалось привязать сокет." << std::endl;
+        closesocket(serverSocket);
+        WSACleanup();
+        return -1;
+    }
+
+    // 4. Прослушивание входящих соединений
+    //listen(serverSocket, 5); // Максимальная длина очереди подключений
+
+    std::cout << "Сервер слушает на порту " << PORT << std::endl;
+
+
+    // 5. Принятие входящих соединений (в бесконечном цикле)
+    while (true) {
+        sockaddr_in clientAddress;
+        int ClAd_size = sizeof(clientAddress);
+        int bsize = recvfrom(serverSocket, &buff[0], sizeof(buff) - 1, 0, (sockaddr*)&clientAddress, &ClAd_size);
+        if (bsize == SOCKET_ERROR) //ошибка передачи
+            cout << "recvfrom() error:" << WSAGetLastError();
+        hostent* hst = gethostbyaddr((char*)&clientAddress.sin_addr, 4, AF_INET);
+        cout << "NEW DATAGRAM!\n" <<((hst) ? hst->h_name : "Unknown host") << "/n" << inet_ntoa(clientAddress.sin_addr) << "/n" <<ntohs(clientAddress.sin_port) << '\n';
+        buff[bsize] = '\0'; // добавление завершающего нуля
+        cout << "получено от клиента: " << buff << '\n'; // Вывод на экран
+        // посылка дейтаграммы клиенту
+        sendto(serverSocket, &buff[0], bsize, 0, (sockaddr*)&clientAddress,
+            sizeof(clientAddress));
+    }
+    return 0;
+}
+
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#include <winsock2.h>
+#include <string>
+#include <windows.h>
+#include <iostream>
+#pragma comment(lib, "ws2_32.lib")
+#pragma warning(disable:4996)
+//#define SERVERADDR "127.0.0.1" // IP-адрес
+
+using namespace std;
+
+const int PORT = 12345;
+const int BUFFER_SIZE = 1024;
+const char* SERVERADDR = "127.0.0.1"; // IP-адрес сервера
+
+int main() {
+    setlocale(LC_ALL, "Ru");
+    char buff[1024];
+    if (WSAStartup(0x0202, (WSADATA*)&buff[0]))
+    { // Ошибка!
+        cout << "Error WSAStartup\n" << WSAGetLastError();
+        return -1;
+    }
+
+    // 1. Создание сокета
+    SOCKET clientSocket = socket(AF_INET, SOCK_DGRAM, 0);
+    if (clientSocket == INVALID_SOCKET) {
+        std::cerr << "Не удалось создать сокет." << std::endl;
+        WSACleanup();
+        return 1;
+    }
+
+    // 2. Настройка адреса сервера
+    sockaddr_in serverAddress;
+    serverAddress.sin_family = AF_INET;
+    //int inet_pton(int ai_family, const char* strptr,
+    //    void* addrptr);
+    //пытается преобразовать текстовую строку, на которую указывает
+    //    strptr, и сохранить двоичный результат в поле с указателем
+    //    addrptr.
+    //if (inet_pton(AF_INET, SERVER_IP, &serverAddress.sin_addr) <= 0) {
+    //    std::cerr << "Ошибка преобразования IP-адреса." << std::endl;
+    //    return 1; // Или другая обработка ошибки
+    //}
+    hostent* hst;
+    serverAddress.sin_port = htons(PORT); // Преобразуем порт в сетевой порядок байтов
+    if (inet_addr(SERVERADDR))
+        // адрес в числовом формате?
+        serverAddress.sin_addr.s_addr = inet_addr(SERVERADDR);
+    else
+    if (hst = gethostbyname(SERVERADDR))
+        // получение IP-адреса по символьному имени по DNS
+        serverAddress.sin_addr.s_addr =
+        ((unsigned long**)hst->h_addr_list)[0][0];
+    else
+        // адрес получить не удалось
+    {
+        cout << "Unknown Host: " << WSAGetLastError() << "\n";
+        closesocket(clientSocket);
+        WSACleanup();
+        return -1;
+    }
+    // 3. Подключение к серверу
+    //Ориентированная на соединение программа - клиент вызывает
+    //    функцию connect, чтобы настроить сокет на сетевое соединение
+    //    с сервером.Функция connect размещает информацию о локальной и удаленной конечных точках соединения в структуре данных
+    //    сокета.Функция connect требует, чтобы были указаны : дескриптор сокета клиента, указатель на структуру, содержащую информацию об удаленном компьютере, и длина этой структуры.
+    //    Прототип функции connect :
+    //int connect(SOCKET socket_handle,
+    //    const struct sockaddr FAR * remote_socket_address, int address_length);
+
+    /*if (connect(clientSocket, (sockaddr*)&serverAddress, sizeof(serverAddress)) < 0) {
+        std::cerr << "Не удалось подключиться к серверу." << std::endl;
+        return 1;
+    }*/
+
+    std::cout << "Подключено к серверу." << std::endl;
+
+    // 4. Общение с сервером
+    char buffer[BUFFER_SIZE];
+    string message = "";
+
+    while (true) {
+        // чтение сообщения с клавиатуры
+        cout << "отправлено на сервер: ";
+        string SS;
+        getline(cin, SS);
+        if (SS == "quit") break;
+        // окончание взаимодействия
+        // передача сообщений на сервер
+        sendto(clientSocket, (char*)&SS[0], SS.size(), 0,
+            (sockaddr*)&serverAddress, sizeof(serverAddress));
+        sockaddr_in SRaddr; // адресная структура
+        int SRaddr_size = sizeof(SRaddr);
+        // прием сообщения с сервера
+        int n = recvfrom(clientSocket, buff, sizeof(buff), 0,
+            (sockaddr*)&SRaddr, &SRaddr_size);
+        if (n == SOCKET_ERROR) {
+            cout << "recvfrom() error:" << WSAGetLastError() << "\n";
+            closesocket(clientSocket);
+            WSACleanup(); return -1;
+        }
+        // вывод принятого с сервера сообщения на экран
+        buff[n] = '\0';
+        cout << "получено с сервера: " << buff << "\n";
+
+    }
+    closesocket(clientSocket);
+    return 0;
+}
+
+//////////////////////////////////////////////////////////////////
+#include <iostream>
+#include <string>
+
+//#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+//#else
+//#include <sys/socket.h>
+//#include <netinet/in.h>
+//#include <unistd.h>
+//#include <arpa/inet.h>
+//#endif
+
+using namespace std;
+
+struct convert {
+    double amount;
+    string from;
+    string to;
+};
+const int PORT = 12345;
+const int BUFFER_SIZE = 1024;
+const char* SERVER_IP = "127.0.0.1"; // IP-адрес сервера
+
+int main() {
+    setlocale(LC_ALL, "Ru");
+    char buff[1024];
+    if (WSAStartup(0x0202, (WSADATA*)&buff[0]))
+    { // Ошибка!
+        cout << "Error WSAStartup\n" << WSAGetLastError();
+        return -1;
+    }
+
+    // 1. Создание сокета
+    SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+    //if (clientSocket == -1) {
+    //    std::cerr << "Не удалось создать сокет." << std::endl;
+    //    return 1;
+    //}
+
+    // 2. Настройка адреса сервера
+    sockaddr_in serverAddress;
+    serverAddress.sin_family = AF_INET;
+    //int inet_pton(int ai_family, const char* strptr,
+    //    void* addrptr);
+    //пытается преобразовать текстовую строку, на которую указывает
+    //    strptr, и сохранить двоичный результат в поле с указателем
+    //    addrptr.
+    if (inet_pton(AF_INET, SERVER_IP, &serverAddress.sin_addr) <= 0) {
+        std::cerr << "Ошибка преобразования IP-адреса." << std::endl;
+        return 1; // Или другая обработка ошибки
+    }
+    serverAddress.sin_port = htons(PORT); // Преобразуем порт в сетевой порядок байтов
+
+    // 3. Подключение к серверу
+    //Ориентированная на соединение программа - клиент вызывает
+    //    функцию connect, чтобы настроить сокет на сетевое соединение
+    //    с сервером.Функция connect размещает информацию о локальной и удаленной конечных точках соединения в структуре данных
+    //    сокета.Функция connect требует, чтобы были указаны : дескриптор сокета клиента, указатель на структуру, содержащую информацию об удаленном компьютере, и длина этой структуры.
+    //    Прототип функции connect :
+    //int connect(SOCKET socket_handle,
+    //    const struct sockaddr FAR * remote_socket_address, int address_length);
+
+    if (connect(clientSocket, (sockaddr*)&serverAddress, sizeof(serverAddress)) < 0) {
+        std::cerr << "Не удалось подключиться к серверу." << std::endl;
+        return 1;
+    }
+
+    std::cout << "Подключено к серверу." << std::endl;
+
+    // 4. Общение с сервером
+    char buffer[BUFFER_SIZE];
+    string message = "";
+
+    while (true) {
+        cout << "Введите сумму и валюту (доступные валюты: USD, EUR, RUB, CNY, JPY) для перевода (например, 100 RUB USD) или 'exit' для выхода: ";
+        getline(cin, message); // Используем getline для чтения строки с пробелами
+
+        cout << "Отправляем серверу: " << message << endl;
+
+        int bytesSent = send(clientSocket, message.c_str(), message.length(), 0);
+        if (bytesSent == -1) {
+            cerr << "Ошибка отправки данных." << endl;
+            break;
+        }
+
+
+        // Отправляем сообщение серверу
+        //После того как соединение установлено, потоковые сокеты
+        //    могут обмениваться с удаленным узлом данными при помощи
+        //    функций
+        //    int send(socket s, const char far * buf,
+        //        int len, int flags)
+        //    и
+        //    int recv(socket s, char far * buf, int len,
+        //        int flags)
+        //    (для посылки и приема данных соответственно).
+        //    Аргументы функций аналогичны.В качестве первого аргумента задается дескриптор сокета, откуда принимаются или куда
+        //    передаются данные.Второй параметр – буфер сообщения, указывает на буфер, т.е.область памяти, в которой расположены предназначенные для передачи данные.Прикладная программа должна
+        //    предварительно отвести память для этого буфера, а затем либо при
+        //    передаче заполнить его данными, либо при приеме извлекать информацию из указанного буфера.Третий параметр вызова функции обозначает длину буфера, т.е.количество данных для передачи.Функции send, resv предназначены только для потоковых
+        //    сокетов – они не требуют указания адреса назначения.
+
+        //send(clientSocket, message.c_str(), message.length(), 0);
+
+
+        // Если отправили "exit", завершаем соединение
+        if (message == "exit") {
+            break;
+        }
+
+        // Получаем ответ от сервера
+        memset(buffer, 0, BUFFER_SIZE);
+        int bytesReceived = recv(clientSocket, buffer, BUFFER_SIZE, 0);
+        if (bytesReceived > 0) {
+            buffer[bytesReceived] = '\0';
+            cout << "Получено от сервера: сумма равна: " << buffer << std::endl;
+        }
+        else {
+            cout << "Сервер отключился." << std::endl;
+            break;
+        }
+    }
+    closesocket(clientSocket);
+    return 0;
+}
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <thread>
+
+//#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+//#else
+//#include <sys/socket.h>
+//#include <netinet/in.h>
+//#include <unistd.h>
+//#include <arpa/inet.h>
+//#endif
+using namespace std;
+
+// Константы
+const int PORT = 12345; // Порт для прослушивания
+const int BUFFER_SIZE = 1024;
+
+
+const double USD_TO_RUB = 85.5;
+const double EUR_TO_RUB = 92.43;
+const double CNY_TO_RUB = 11.71;
+const double JPY_TO_RUB = 0.57;
+
+struct convert {
+    double amount;
+    string from;
+    string to;
+    double res;
+    convert(double amount,string from, string to) {
+        this->amount = amount;
+        this->from = from;
+        this->to = to;
+        res = -1.0;  // Инициализируем значением по умолчанию
+        if (from == "USD" && to == "RUB")
+            res = amount * USD_TO_RUB;
+        if (from == "USD" && to == "EUR")
+            res = amount * 0.93;
+        if (from == "USD" && to == "CNY")
+            res = amount * 7.26;
+        if (from == "USD" && to == "JPY")
+            res = amount * 149.91;
+        if (from == "RUB" && to == "USD")
+            res = amount *0.011696;
+        if (from == "RUB" && to == "EUR")
+            res = amount *0.010819;
+        if (from == "RUB" && to == "CNY")
+            res = amount *0.085371;
+        if (from == "RUB" && to == "JPY")
+            res = amount *1.75;
+        if (from == "EUR" && to == "RUB")
+            res = amount * 92.43;
+        if (from == "EUR" && to == "USD")
+            res = amount * 1.08;
+        if (from == "EUR" && to == "CNY")
+            res = amount * 7.84;
+        if (from == "EUR" && to == "JPY")
+            res = amount * 162.02;
+        if (from == "CNY" && to == "RUB")
+            res = amount * 11.71;
+        if (from == "CNY" && to == "USD")
+            res = amount * 0.14;
+        if (from == "CNY" && to == "EUR")
+            res = amount * 0.13;
+        if (from == "CNY" && to == "JPY")
+            res = amount * 10.67;
+        if (from == "JPY" && to == "RUB")
+            res = amount * 0.57;
+        if (from == "JPY" && to == "USD")
+            res = amount * 0.006668;
+        if (from == "JPY" && to == "EUR")
+            res = amount * 0.006169;
+        if (from == "JPY" && to == "CNY")
+            res = amount * 0.048381;
+    }
+};
+
+// Функция для обработки соединения с клиентом
+void handleClient(int clientSocket) {
+    setlocale(LC_ALL, "Ru");
+    char buffer[BUFFER_SIZE];
+    int bytesReceived;
+
+    while ((bytesReceived = recv(clientSocket, buffer, BUFFER_SIZE, 0)) > 0) {
+        buffer[bytesReceived] = '\0';
+        string s = buffer;
+        if (s == "exit") {
+            break; // Выходим из цикла
+        }
+        size_t firstSpace = s.find(' ');
+        double amount = stod(s.substr(0, firstSpace));
+        size_t secondSpace = s.find(' ', firstSpace + 1);
+        string from = (s.substr(firstSpace+1, secondSpace-firstSpace-1));
+        string to = (s.substr(secondSpace+1));
+        cout << "Получено от клиента: " << s << std::endl;
+        convert d(amount, from, to);
+        cout << "сумма " << d.amount <<" from " <<d.from << " to " << d.to << endl;
+        string r = to_string(d.res);
+        cout << "result: " << r << endl;
+        // Отправляем ответ клиенту (эхо)
+        send(clientSocket, r.c_str(), r.size(), 0);
+        memset(buffer, 0, BUFFER_SIZE);
+    }
+    closesocket(clientSocket);
+    std::cout << "Соединение с клиентом завершено." << std::endl;
+}
+
+int main() {
+    setlocale(LC_ALL, "Ru");
+    char buff[1024];
+    if (WSAStartup(0x0202, (WSADATA*)&buff[0]))
+    {
+        cout << "Error WSAStartup \n" << WSAGetLastError();
+        // Ошибка!
+        return -1;
+    }
+
+    // 1. Создание сокета
+    SOCKET serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+    if (serverSocket == -1) {
+        cerr << "Не удалось создать сокет." << std::endl;
+        return 1;
+    }
+
+    // 2. Настройка адреса сервера
+    sockaddr_in serverAddress;
+    //struct sockaddr_in
+    //{
+    //    short sin_family; // адресное пространство
+    //    // (AF_INET для IPv4)
+    //    u_short sin_port; // порт
+    //    struct in_addr sin_addr; // IP-адрес
+    //    char sin_zero[8]; // хвост
+    //};
+
+    serverAddress.sin_family = AF_INET;
+    serverAddress.sin_addr.s_addr = INADDR_ANY; // Слушаем на всех интерфейсах
+    //При инициализации сокета в этой структуре необходимо указать IP - адрес, с которым будет работать данный сокет.Если сокет
+    //    будет работать с любым адресом(например, в случае приложениясервера, доступного из узлов с любым адресом), адрес для сокета
+    //    можно указать следующим образом :
+    //sockaddr_in sin;
+    //sin.sin_addr.s_addr = INADDR_ANY;
+    serverAddress.sin_port = htons(PORT); // Преобразуем порт в сетевой порядок байтов
+
+    // 3. Привязка сокета к адресу
+    //int bind(socket s, const struct sockaddr far *
+    //    name, int namelen);
+    //Первым аргументом передается дескриптор сокета, возвращенный функцией socket, за ним следуют указатель на структуру
+    //    sockaddr и ее длина.
+    //    В случае ошибки функция bind возвращает значение
+    //    SOCKET_ERROR.Анализ причин ошибки следует выполнять при
+    //    помощи функции WSAGetLastError.
+    if (bind(serverSocket, (sockaddr*)&serverAddress, sizeof(serverAddress)) < 0) {
+        cerr << "Не удалось привязать сокет." << std::endl;
+        return 1;
+    }
+
+    // 4. Прослушивание входящих соединений
+    listen(serverSocket, 5); // Максимальная длина очереди подключений
+
+    std::cout << "Сервер слушает на порту " << PORT << std::endl;
+
+
+    // 5. Принятие входящих соединений (в бесконечном цикле)
+    while (true) {
+        sockaddr_in clientAddress;
+        socklen_t clientAddressLength = sizeof(clientAddress);
+        //Принятие соединения.Входящие соединения должны ожидать в очереди, пока их не примут.При успешной попытке соединения с сервером на порт, который слушает сервер, сведения о соединении попадают в очередь ожидающих принятия.Для принятия ожидающего соединения необходимо вызвать функцию
+        //    accept(), которая возвращает совершенно новый дескриптор сокета для этого конкретного соединения.В результате у нас есть и
+        //    первый сокет, который по - прежнему всё ещё слушает новые входящие соединения, и только что созданный сокет, готовый уже к
+        //    обмену данными с помощью send() и recv()!
+        //    Прототип функции выглядит так :
+        //int accept(int sockfd, struct sockaddr* addr,
+        //    socklen_t * addrlen);
+        //    sockfd – это слушающий сокет, addr – это обычно указатель на
+        //    локальную структуру sockaddr_storage.Чтобы не ограничиваться только IPv4 или только IPv6, часто в сетевом программировании используют как тип адресной структуры сокета структуру
+        //    sockaddr_storage, которой точно хватит для хранения обоих
+        //    типов протоколов.В этой структуре будет информация о входящем соединении.С её помощью можно узнать, кто именно и с каким исходящим портом соединялся с вами.addrlen – локальная
+        //    переменная, целое число, которое должно быть установлено в
+        //    sizeof(sockaddr_storage) перед передачей в accept().
+        // 6. Принимаем соединение
+        int clientSocket = accept(serverSocket, (sockaddr*)&clientAddress, &clientAddressLength);
+        if (clientSocket < 0) {
+            cerr << "Не удалось принять соединение." << std::endl;
+            continue; // Переходим к следующей итерации цикла
+        }
+
+        // Выводим информацию о клиенте
+        char clientIp[INET_ADDRSTRLEN];//гарантирует, что буфер будет достаточно большим, чтобы вместиь IPv4 адрес
+        inet_ntop(AF_INET, &clientAddress.sin_addr, clientIp, INET_ADDRSTRLEN);
+        std::cout << "Принято соединение от: " << clientIp << ":" << ntohs(clientAddress.sin_port) << std::endl;
+
+        // Создаем новый поток для обработки клиента
+        std::thread clientThread(handleClient, clientSocket);
+        clientThread.detach(); // Отсоединяем поток, чтобы он работал независимо
+    }
+    closesocket(serverSocket);
+    return 0;
+}
