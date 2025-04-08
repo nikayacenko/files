@@ -2414,3 +2414,233 @@ int main() {
 	cout <<"S4: "<< p4(x, res4, y) << endl;
 }
 
+
+#include <iostream>
+#include <math.h>
+#include <vector>
+#include <iomanip>
+using namespace std;
+const double PI = 2 * acos(0.0);
+double erf_res(double a, int n=10) {
+	double h = a / n, res=0;
+	res += (exp(-0*0))/2;
+	res += (exp(-a*a))/2;
+	for (int i = 1; i < n; ++i) {
+		double t = i * h;
+		res += exp(-t * t);
+	}
+	return 2*(1/sqrt(PI))*h * res;
+}
+double t(int n) {
+	double h = 1.0 / n, res = 0;
+	res += (1.0/(1.0+0*0)) / 2;
+	res += (1.0 / (1.0 + 1 * 1)) / 2;
+	for (int i = 1; i < n; ++i) {
+		double t = i * h;
+		res += 1.0 / (1.0 + t * t);
+	}
+	return 4 * h * res;
+}
+double p(int n) {
+	double h = 1.0 / n, res = 0;
+	for (int i = 0; i < n; ++i) {
+		double t = h/2+i*h;
+		//double t = h * i;
+		res += 1.0 / (1.0 + t * t);
+	}
+	return 4 * h * res;
+}
+double f1(double x) {
+	return exp(x * x);
+}
+double f2(double x) {
+	return 1.0 / (4.0 - sin(16.0 * PI * x));
+}
+double t2(double (*f)(double), double a, double b, int n = 8) {
+	double h = (b - a) / n;
+	double res = (f(a) + f(b))/2;
+	for (int i = 0; i < n; i++) {
+		res += f(a + i * h);
+	}
+	res *= h;
+	return res;
+}
+double rect(double (*f)(double), double a, double b, int n = 32) {
+	double h = (b - a) / n;
+	double res = (f(a) + f(b));
+	for (int i = 0; i < n; i++) {
+		res += f(a + i * h);
+	}
+	res *= h;
+	return res;
+}
+vector<double> gauss(vector<vector<double>>& a, vector<double>& y) {
+	int n = y.size(); // Размерность системы
+	vector<double> x(n);  // Вектор решений
+	double max;
+	int k, ind;
+	const long double eps = 0.00001;
+
+	for (k = 0; k < n; ++k) {
+		// Поиск строки с максимальным по модулю элементом в k-ом столбце
+		max = abs(a[k][k]);
+		ind = k;
+		for (int i = k + 1; i < n; ++i) {
+			if (abs(a[i][k]) > max) {
+				max = abs(a[i][k]);
+				ind = i;
+			}
+		}
+
+		// Перестановка строк, если необходимо
+		if (ind != k) {
+			swap(a[k], a[ind]);
+			swap(y[k], y[ind]);
+		}
+
+		// Прямой ход (приведение к верхнетреугольному виду)
+		for (int i = k + 1; i < n; ++i) {
+			double factor = a[i][k] / a[k][k];
+			for (int j = k; j < n; ++j) {
+				a[i][j] -= factor * a[k][j];
+			}
+			y[i] -= factor * y[k];
+		}
+	}
+
+	// Обратный ход (нахождение решений)
+	for (k = n - 1; k >= 0; --k) {
+		x[k] = y[k];
+		for (int i = k + 1; i < n; ++i) {
+			x[k] -= a[k][i] * x[i];
+		}
+		x[k] /= a[k][k];
+	}
+
+	return x;
+}
+vector<double> nodes(double a, double b, int num_nodes) {
+	vector<double> nodes(num_nodes);
+	double step = (b - a) / (num_nodes - 1);
+	for (int i = 0; i < num_nodes; ++i) {
+		nodes[i] = a + i * step;
+	}
+	return nodes;
+}
+double f(double x) {
+	return 4 / (1 + x * x);
+}
+double fp(double x) {
+	return -8 * x / (pow(1 + x * x, 2));
+}
+vector<double> s(double x, int p) {
+	vector<double>res(4);
+	if (p == 0) {
+		res[0] = pow(x, 3);
+		res[1] = pow(x, 2);
+		res[2] = x;
+		res[3] = 1;
+		//res[4] = f(x);
+		return res;
+	}
+	if (p == 1) {
+		res[0] = 3 * pow(x, 2);
+		res[1] = 2 * x;
+		res[2] = 1;
+		res[3] = 0;
+		//res[4] = fp(x);
+		return res;
+	}
+	if (p == 2) {
+		res[0] = 6 * x;
+		res[1] = 2;
+		res[2] = 0;
+		res[3] = 0;
+		//res[4] = fpp(x);
+		return res;
+	}
+}
+void splain(int n, double start, double end) {
+	vector<double>x_i = nodes(start, end, n);
+	vector<double>k;
+	vector<double>b(4);
+	vector<vector<double>>matr(4);
+	for (int i = 0; i < n-1; i++) {
+		matr[0] = s(x_i[i],0);
+		matr[1] = s(x_i[i + 1],0);
+		matr[2] = s(x_i[i],1);
+		matr[3] = s(x_i[i+1],1);
+		b[0] = f(x_i[i]);
+		b[1] = f(x_i[i + 1]);
+		b[2] = fp(x_i[i]);
+		b[3] = fp(x_i[i+1]);
+
+		k = gauss(matr, b);
+		cout << k[0] << endl;
+		cout << k[1] << endl;
+		cout << k[2] << endl;
+		cout << k[3] << endl;
+		cout << endl;
+	}
+}
+double splainPI(double x) {
+	return pow(x, 3) * 2 + pow(x, 2) * (-4) + 4;
+}
+double t3(int n) {
+	double h = 1.0 / n, res = 0;
+	res = splainPI(0.0) / 2 + splainPI(1.0) / 2;
+	for (int i = 1; i < n-1; i++) {
+		res += splainPI(h*i);
+	}
+	return h * res;
+}
+double t4(int n) {
+	double h = 1.0 / n, res = 0;
+	for (int i = 1; i < n; i++) {
+		res += splainPI(h * i);
+	}
+	return h * res;
+}
+int main() {
+	setlocale(LC_ALL, "Ru");
+	//1
+	for (double i = 0; i <= 2; i += 0.1)
+		cout <<i <<" "<< erf_res(i) << " " << erf(i) << endl;
+	//2
+	cout << fixed << setprecision(15);
+	cout << "метод трапеции: " << endl;
+	int m[] = { 8, 32, 128 };
+	for (int i : m) {
+		cout<<i << " " << t(i) << " error: "<< PI - t(i) << endl;
+	}
+	cout << "метод прямоугольников: " << endl;
+	for (int i : m) {
+		cout << i << " " << p(i) << " error: "<< PI - p(i) << endl;
+	}
+	//3
+	double eps = 0.0000001;
+	double in1 = t2(f1, 0.0, 2.0);
+	double in2 = t2(f2, 2.0+eps, 4.0);
+	double in = in1 + in2;
+	cout << endl;
+	cout << in << endl;
+	cout << endl;
+	in1 = rect(f1, 0.0, 2.0);
+	in2 = rect(f2, 2.0 + eps, 4.0);
+	in = in1 + in2;
+	cout << endl;
+	cout << in << endl;
+	cout << endl;
+	//2
+	splain(2, 0, 1);
+	cout << "метод трапеции: " << endl;
+	for (int i : m) {
+		cout << i << " " << t3(i) << endl;
+		cout << PI - t3(i) << endl;
+	}
+	cout << "метод прямоугольников: " << endl;
+	for (int i : m) {
+		cout << i << " " << t4(i) << endl;
+		cout << PI - t4(i) << endl;
+	}
+}
