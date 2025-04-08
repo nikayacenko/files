@@ -2421,21 +2421,21 @@ int main() {
 #include <iomanip>
 using namespace std;
 const double PI = 2 * acos(0.0);
-double erf_res(double a, int n=10) {
-	double h = a / n, res=0;
-	res += (exp(-0*0))/2;
-	res += (exp(-a*a))/2;
+double erf_res(double a, int n = 10) {
+	double h = a / n, res = 0;
+	res += (exp(-0 * 0)) / 2;
+	res += (exp(-a * a)) / 2;
 	for (int i = 1; i < n; ++i) {
 		double t = i * h;
 		res += exp(-t * t);
 	}
-	return 2*(1/sqrt(PI))*h * res;
+	return 2 * (1 / sqrt(PI)) * h * res;
 }
 double t(int n) {
 	double h = 1.0 / n, res = 0;
-	res += (1.0/(1.0+0*0)) / 2;
+	res += (1.0 / (1.0 + 0 * 0)) / 2;
 	res += (1.0 / (1.0 + 1 * 1)) / 2;
-	for (int i = 1; i < n; ++i) {
+	for (int i = 1; i < n-1; ++i) {
 		double t = i * h;
 		res += 1.0 / (1.0 + t * t);
 	}
@@ -2444,7 +2444,7 @@ double t(int n) {
 double p(int n) {
 	double h = 1.0 / n, res = 0;
 	for (int i = 0; i < n; ++i) {
-		double t = h/2+i*h;
+		double t = h / 2 + i * h;
 		//double t = h * i;
 		res += 1.0 / (1.0 + t * t);
 	}
@@ -2456,24 +2456,7 @@ double f1(double x) {
 double f2(double x) {
 	return 1.0 / (4.0 - sin(16.0 * PI * x));
 }
-double t2(double (*f)(double), double a, double b, int n = 8) {
-	double h = (b - a) / n;
-	double res = (f(a) + f(b))/2;
-	for (int i = 0; i < n; i++) {
-		res += f(a + i * h);
-	}
-	res *= h;
-	return res;
-}
-double rect(double (*f)(double), double a, double b, int n = 32) {
-	double h = (b - a) / n;
-	double res = (f(a) + f(b));
-	for (int i = 0; i < n; i++) {
-		res += f(a + i * h);
-	}
-	res *= h;
-	return res;
-}
+
 vector<double> gauss(vector<vector<double>>& a, vector<double>& y) {
 	int n = y.size(); // Размерность системы
 	vector<double> x(n);  // Вектор решений
@@ -2565,22 +2548,18 @@ void splain(int n, double start, double end) {
 	vector<double>k;
 	vector<double>b(4);
 	vector<vector<double>>matr(4);
-	for (int i = 0; i < n-1; i++) {
-		matr[0] = s(x_i[i],0);
-		matr[1] = s(x_i[i + 1],0);
-		matr[2] = s(x_i[i],1);
-		matr[3] = s(x_i[i+1],1);
+	for (int i = 0; i < n - 1; i++) {
+		matr[0] = s(x_i[i], 0);
+		matr[1] = s(x_i[i + 1], 0);
+		matr[2] = s(x_i[i], 1);
+		matr[3] = s(x_i[i + 1], 1);
 		b[0] = f(x_i[i]);
 		b[1] = f(x_i[i + 1]);
 		b[2] = fp(x_i[i]);
-		b[3] = fp(x_i[i+1]);
+		b[3] = fp(x_i[i + 1]);
 
 		k = gauss(matr, b);
-		cout << k[0] << endl;
-		cout << k[1] << endl;
-		cout << k[2] << endl;
-		cout << k[3] << endl;
-		cout << endl;
+		cout << k[0] << " "<< k[1] <<" " << k[2] <<" "<<k[3] << endl;
 	}
 }
 double splainPI(double x) {
@@ -2589,58 +2568,101 @@ double splainPI(double x) {
 double t3(int n) {
 	double h = 1.0 / n, res = 0;
 	res = splainPI(0.0) / 2 + splainPI(1.0) / 2;
-	for (int i = 1; i < n-1; i++) {
-		res += splainPI(h*i);
+	for (int i = 1; i < n - 1; i++) {
+		res += splainPI(h * i);
 	}
 	return h * res;
 }
 double t4(int n) {
 	double h = 1.0 / n, res = 0;
-	for (int i = 1; i < n; i++) {
-		res += splainPI(h * i);
+	for (int i = 0; i < n; i++) {
+		res += splainPI(h/2.0+h * i);
 	}
 	return h * res;
+}
+double s(double (*f)(double),double a, double b) {
+	int n = 1000;
+	double h = (b - a) / n;
+	double y = 0;
+	double x0 = a;
+	double x1 = a + h;
+	for (int i = 0; i < n; i++) {
+		y += f(x0);
+		y += 4 * f(x0 + h / 2);
+		y += f(x1);
+
+		x0 += h;
+		x1 += h;
+	}
+	return y * (h / 6);
+}
+double t2(double (*f)(double), double a, double b, int n = 1000) {
+	double h = (b - a) / n;
+	double res = (f(a) + f(b)) / 2;
+	for (int i = 0; i < n; i++) {
+		res += f(a + i * h);
+	}
+	res *= h;
+	return res;
+}
+double rect(double (*f)(double), double a, double b, int n = 1000) {
+	double h = (b - a) / n;
+	double res = (f(a) + f(b));
+	for (int i = 0; i < n; i++) {
+		res += f(a + i * h);
+	}
+	res *= h;
+	return res;
 }
 int main() {
 	setlocale(LC_ALL, "Ru");
 	//1
+	cout << "вычисление интеграла с помощью трапеции: " << endl;
 	for (double i = 0; i <= 2; i += 0.1)
-		cout <<i <<" "<< erf_res(i) << " " << erf(i) << endl;
+		cout << i << " " << erf_res(i) << " " << erf(i) << endl;
 	//2
-	cout << fixed << setprecision(15);
+	//cout << fixed << setprecision(15);
+	cout << endl;
+	cout << "№2 вычисление интеграла с помощью методов трапеции и прямоугольников: " << endl;
 	cout << "метод трапеции: " << endl;
 	int m[] = { 8, 32, 128 };
 	for (int i : m) {
-		cout<<i << " " << t(i) << " error: "<< PI - t(i) << endl;
+		cout << i << " " << t(i) << " error: " << PI - t(i) << " "<<1.0/(i*i)<<endl;
 	}
 	cout << "метод прямоугольников: " << endl;
 	for (int i : m) {
-		cout << i << " " << p(i) << " error: "<< PI - p(i) << endl;
+		cout << i << " " << p(i) << " error: " << PI - p(i) << " " << 1.0 / (i * i)<<endl;
 	}
-	//3
-	double eps = 0.0000001;
-	double in1 = t2(f1, 0.0, 2.0);
-	double in2 = t2(f2, 2.0+eps, 4.0);
-	double in = in1 + in2;
-	cout << endl;
-	cout << in << endl;
-	cout << endl;
-	in1 = rect(f1, 0.0, 2.0);
-	in2 = rect(f2, 2.0 + eps, 4.0);
-	in = in1 + in2;
-	cout << endl;
-	cout << in << endl;
-	cout << endl;
-	//2
+	cout << "коэффициенты сплайна: ";
 	splain(2, 0, 1);
 	cout << "метод трапеции: " << endl;
 	for (int i : m) {
-		cout << i << " " << t3(i) << endl;
-		cout << PI - t3(i) << endl;
+		cout << i << " " << t3(i) << " error: " << PI - t3(i) << " " << 1.0 / (i)<<endl;
 	}
 	cout << "метод прямоугольников: " << endl;
 	for (int i : m) {
-		cout << i << " " << t4(i) << endl;
-		cout << PI - t4(i) << endl;
+		cout << i << " " << t4(i) << " error: " << PI - t4(i) << " " << 1.0 / i<<endl;
 	}
+	//3
+	cout << endl;
+	cout << "№3, вычисление интеграла: "<<endl;
+	cout << "метод трапеции: ";
+	double eps = 0.0000001;
+	double in1 = t2(f1, 0.0, 2.0);
+	double in2 = t2(f2, 2.0 + eps, 4.0);
+	double in = in1 + in2;
+	cout << in << endl;
+	cout << "метод прямоугольников: ";
+	in1 = rect(f1, 0.0, 2.0);
+	in2 = rect(f2, 2.0 + eps, 4.0);
+	in = in1 + in2;
+	cout << in << endl;
+	cout << "метод симпсона: ";
+	in1 = s(f1, 0.0, 2.0);
+	in2 = s(f2, 2.0 + eps, 4.0);
+	in = in1 + in2;
+	cout << in << endl;
 }
+
+
+
