@@ -1,0 +1,160 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <iomanip>
+#define _USE_MATH_DEFINES 
+#include <math.h>
+#include <algorithm>
+
+using namespace std;
+
+const double PI = acos(-1);
+
+// Точное решение
+double exact_solution(double x, double t) {
+    return exp(-t) * sin(x);
+}
+
+// Явная схема
+void explicit_scheme(double h, double tau, int Nx, int Nt, vector<vector<double>>& u_explicit) {
+    // Начальное условие
+    for (int i = 0; i <= Nx; ++i) {
+        double x = i * h;
+        u_explicit[i][0] = sin(x);
+    }
+
+    // Временные шаги
+    for (int n = 0; n < Nt; ++n) {
+        double t = (n + 1) * tau;
+
+        // Внутренние узлы
+        for (int i = 1; i < Nx; ++i) {
+            u_explicit[i][n + 1] = u_explicit[i][n] + (tau / (h * h)) *
+                (u_explicit[i + 1][n] - 2 * u_explicit[i][n] + u_explicit[i - 1][n]);
+        }
+
+        // Граничные условия
+        u_explicit[0][n + 1] = 0.0;
+        u_explicit[Nx][n + 1] = exp(-t);
+    }
+}
+
+void jacobi(double T, int N, int M, vector<vector<double>>& u2) {
+
+    double eps = 1e-200;
+    //int max_iterations = 1000;
+    double h = M_PI / (2 * N);
+    double k = T / M;
+
+    for (int i = 0; i <= N; i++) {
+        u2[i][0] = sin(i * h); // u(x, 0) = sin(x)
+    }
+    double r = k / (h * h);
+    for (int j = 0; j < M; j++) {
+
+        // u(0, t) = 0
+        u2[0][j + 1] = 0.0;
+        // u(PI/2, t) = e^(-t)
+        u2[N][j + 1] = exp(-(j + 1) * k);
+
+
+        for (int i = 1; i < N; ++i) {
+            u2[i][j + 1] = u2[i][j];
+        }
+
+        int iteration = 0;
+        double max_diff;
+
+        do {
+            max_diff = 0.0;
+            vector<double> u_old(N + 1);
+            for (int i = 0; i <= N; i++) {
+                u_old[i] = u2[i][j + 1];
+            }
+
+            for (int i = 1; i < N; ++i) {
+                double u_new = (u2[i][j] + r * u2[i - 1][j + 1] + r * u2[i + 1][j + 1]) / (1 + 2 * r);
+                u2[i][j + 1] = u_new;
+                max_diff = max(max_diff, abs(u_new - u_old[i]));
+            }
+
+            iteration++;
+
+        } while (max_diff > eps);
+    }
+}
+
+int main() {
+    setlocale(LC_ALL, "Ru");
+    // Параметры сетки
+    cout << "Введите параметры:" << endl;
+    cout << "T: ";
+    double T;
+    cin >> T;
+    //cout << "h: ";
+    double h = PI/20.0;
+    //cin >> h;
+    cout << "tau: ";
+    double tau;
+    cin >> tau;
+    double L = PI / 2;
+    int Nx = static_cast<int>(round(L / h));  // Число узлов по пространству
+    int Nt = static_cast<int>((T / tau)); // Число узлов по времени
+    cout << Nx << " " << Nt << endl;
+    // Выделение памяти для решений
+    vector<vector<double>> u_explicit(Nx + 1, vector<double>(Nt + 1, 0.0));
+    vector<vector<double>> u_implicit(Nx + 1, vector<double>(Nt + 1, 0.0));
+    double res = h * h / 2.0;
+    bool is_stable = (tau <= h * h / 2.0);
+    cout << "Условие устойчивости: " << (is_stable ? "выполнено" : "нарушено") << endl;
+    // Решение явной и неявной схемами
+    if (is_stable) {
+        cout << "явная схема: \n";
+        explicit_scheme(h, tau, Nx, Nt, u_explicit);
+        for (int i = 0; i <= Nx; ++i) {
+            double x = i * h;
+            cout << to_string(x) << fixed << " " << to_string(u_explicit[i][Nt]) << " " << to_string(exact_solution(x, T)) << " " << to_string(abs(u_explicit[i][Nt] - exact_solution(x, T))) << endl;
+        }
+    }
+    cout << endl;
+    jacobi(T, Nx, Nt, u_implicit);
+    cout << "неявная схема: \n";
+    for (int i = 0; i <= Nx; ++i) {
+        double x = i * h;
+        cout << to_string(x) << " " << fixed << " " << to_string(u_implicit[i][Nt]) << " " << to_string(exact_solution(x, T)) << " " << to_string(abs(u_implicit[i][Nt] - exact_solution(x, T))) << endl;
+    }
+    cout << endl;
+    double x = 0.0;
+    cout << "tx ";
+    for (int i = 0; i <= Nx; i++) {
+        cout << to_string(x) << " ";
+        x += h;
+    }
+    double t = 0.0;
+    for (int i = 0; i <= Nt; i++) {
+        cout << to_string(t) << " ";
+        for (int j = 0; j <= Nx; j++) {
+            cout << to_string(u_explicit[j][t]) << " ";
+        }
+        t += tau;
+        cout << "\n";
+    }
+    cout << endl;
+    x = 0.0;
+    cout << "tx ";
+    for (int i = 0; i <= Nx; i++) {
+        cout << to_string(x) << " ";
+        x += h;
+    }
+    t = 0.0;
+    for (int i = 0; i <= Nt; i++) {
+        cout << to_string(t) << " ";
+        for (int j = 0; j <= Nx; j++) {
+            cout << to_string(u_implicit[j][t]) << " ";
+        }
+        t += tau;
+        cout << "\n";
+    }
+    return 0;
+}
