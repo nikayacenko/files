@@ -1,0 +1,149 @@
+-- =====================================================
+-- УДАЛЕНИЕ СТАРЫХ ТАБЛИЦ (если есть)
+-- =====================================================
+DROP TABLE IF EXISTS shipment_items CASCADE;
+DROP TABLE IF EXISTS shipments CASCADE;
+DROP TABLE IF EXISTS contract_items CASCADE;
+DROP TABLE IF EXISTS contracts CASCADE;
+DROP TABLE IF EXISTS clients CASCADE;
+DROP TABLE IF EXISTS product CASCADE;
+
+-- =====================================================
+-- СОЗДАНИЕ ТАБЛИЦ
+-- =====================================================
+
+-- 1. Клиенты
+CREATE TABLE clients (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(200) NOT NULL,
+    adress VARCHAR(300),
+    phone VARCHAR(50)
+);
+
+-- 2. Товары
+CREATE TABLE product (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(200) NOT NULL,
+    ed VARCHAR(50),
+    price DECIMAL(10,2) DEFAULT 0
+);
+
+-- 3. Договоры (заказы с предоплатой)
+CREATE TABLE contracts (
+    id SERIAL PRIMARY KEY,
+    client_id INT REFERENCES clients(id) ON DELETE CASCADE,
+    contract_date DATE DEFAULT CURRENT_DATE,
+    payment_type VARCHAR(20) DEFAULT 'cash'  -- cash=наличные, cashless=безнал
+);
+
+-- 4. Позиции договора (что заказали)
+CREATE TABLE contract_items (
+    id SERIAL PRIMARY KEY,
+    contract_id INT REFERENCES contracts(id) ON DELETE CASCADE,
+    product_id INT REFERENCES product(id),
+    quantity INT NOT NULL DEFAULT 0,
+    amount DECIMAL(10,2) DEFAULT 0
+);
+
+-- 5. Отгрузки
+CREATE TABLE shipments (
+    id SERIAL PRIMARY KEY,
+    contract_id INT REFERENCES contracts(id) ON DELETE CASCADE,
+    shipment_date DATE DEFAULT CURRENT_DATE
+);
+
+-- 6. Позиции отгрузки (что отгрузили)
+CREATE TABLE shipment_items (
+    id SERIAL PRIMARY KEY,
+    shipment_id INT REFERENCES shipments(id) ON DELETE CASCADE,
+    product_id INT REFERENCES product(id),
+    quantity INT NOT NULL DEFAULT 0,
+    amount DECIMAL(10,2) DEFAULT 0
+);
+
+-- =====================================================
+-- ТЕСТОВЫЕ ДАННЫЕ
+-- =====================================================
+
+-- Клиенты
+INSERT INTO clients (name, adress, phone) VALUES 
+('ООО "Ромашка"', 'г. Москва, ул. Ленина 1', '+7-495-123-45-67'),
+('ИП Иванов', 'г. Санкт-Петербург, Невский пр. 10', '+7-812-987-65-43'),
+('ЗАО "Восток"', 'г. Новосибирск, Красный пр. 50', '+7-383-555-12-34');
+
+-- Товары
+INSERT INTO product (name, ed, price) VALUES 
+('Ноутбук', 'шт.', 45000),
+('Мышь', 'шт.', 1500),
+('Клавиатура', 'шт.', 2500),
+('Монитор', 'шт.', 18000);
+
+-- =====================================================
+-- ДОГОВОР 1 (ООО "Ромашка", наличные, частичная отгрузка)
+-- =====================================================
+INSERT INTO contracts (client_id, contract_date, payment_type) VALUES 
+(1, '2026-01-15', 'cash');
+
+INSERT INTO contract_items (contract_id, product_id, quantity, amount) VALUES
+(1, 1, 5, 225000),   -- 5 ноутбуков
+(1, 2, 10, 15000);   -- 10 мышей
+
+-- Отгрузка по договору 1 (отгрузили только 2 ноутбука)
+INSERT INTO shipments (contract_id, shipment_date) VALUES 
+(1, '2026-01-20');
+
+INSERT INTO shipment_items (shipment_id, product_id, quantity, amount) VALUES
+(1, 1, 2, 90000);    -- отгрузили 2 ноутбука
+
+-- =====================================================
+-- ДОГОВОР 2 (ИП Иванов, безнал, отгрузок нет)
+-- =====================================================
+INSERT INTO contracts (client_id, contract_date, payment_type) VALUES 
+(2, '2026-02-01', 'cashless');
+
+INSERT INTO contract_items (contract_id, product_id, quantity, amount) VALUES
+(2, 3, 3, 7500),     -- 3 клавиатуры
+(2, 4, 2, 36000);    -- 2 монитора
+
+-- Отгрузок нет
+
+-- =====================================================
+-- ДОГОВОР 3 (ЗАО "Восток", наличные, полная отгрузка)
+-- =====================================================
+INSERT INTO contracts (client_id, contract_date, payment_type) VALUES 
+(3, '2026-02-10', 'cash');
+
+INSERT INTO contract_items (contract_id, product_id, quantity, amount) VALUES
+(3, 2, 20, 30000);   -- 20 мышей
+
+-- Полная отгрузка
+INSERT INTO shipments (contract_id, shipment_date) VALUES 
+(3, '2026-02-15');
+
+INSERT INTO shipment_items (shipment_id, product_id, quantity, amount) VALUES
+(2, 2, 20, 30000);   -- отгрузили все 20 мышей
+
+-- =====================================================
+-- ДОГОВОР 4 (ООО "Ромашка", безнал, без отгрузки)
+-- =====================================================
+INSERT INTO contracts (client_id, contract_date, payment_type) VALUES 
+(1, '2026-03-01', 'cashless');
+
+INSERT INTO contract_items (contract_id, product_id, quantity, amount) VALUES
+(4, 1, 3, 135000);   -- 3 ноутбука
+
+-- Отгрузок нет
+
+-- =====================================================
+-- ПРОВЕРОЧНЫЕ ЗАПРОСЫ (для тестирования)
+-- =====================================================
+
+-- Посмотреть все договоры
+SELECT * FROM contracts;
+
+-- Посмотреть все позиции договоров
+SELECT * FROM contract_items;
+
+-- Посмотреть все отгрузки
+SELECT * FROM shipments;
+SELECT * FROM shipment_items;
