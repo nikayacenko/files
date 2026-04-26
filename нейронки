@@ -1,0 +1,262 @@
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import DataLoader
+from torch.nn.utils.rnn import pad_sequence
+from torchtext.datasets import IMDB
+from torchtext.data.utils import get_tokenizer
+from torchtext.vocab import build_vocab_from_iterator
+import matplotlib.pyplot as plt
+import time
+
+# Устройство
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(f"Device: {device}")
+
+# ==================== 1. ПОДГОТОВКА ДАННЫХ ====================
+
+# Токенизатор
+tokenizer = get_tokenizer('basic_english')
+
+
+def yield_tokens(data_iter):
+    for label, line in data_iter:
+        yield tokenizer(line)
+
+
+# Загрузка
+train_iter, test_iter = IMDB(split=('train', 'test'))
+
+# Словарь (20000 слов)
+vocab = build_vocab_from_iterator(yield_tokens(train_iter), specials=['<pad>', '<unk>'], max_tokens=10000)
+vocab.set_default_index(vocab['<unk>'])
+
+MAX_LENGTH = 256
+BATCH_SIZE = 64
+
+
+def text_pipeline(text):
+    return [vocab[token] for token in tokenizer(text)]
+
+
+def label_pipeline(label):
+    return 1 if label == 'pos' else 0
+
+
+def collate_batch(batch):
+    labels = []
+    texts = []
+    for label, text in batch:
+        labels.append(label_pipeline(label))
+        text_tensor = torch.tensor(text_pipeline(text))
+        if len(text_tensor) > MAX_LENGTH:
+            text_tensor = text_tensor[:MAX_LENGTH]
+        texts.append(text_tensor)
+    padded_texts = pad_sequence(texts, batch_first=True, padding_value=vocab['<pad>'])
+    return torch.tensor(labels), padded_texts
+
+
+# Создание загрузчиков
+train_list = list(IMDB(split='train'))
+test_list = list(IMDB(split='test'))
+
+train_loader = DataLoader(train_list, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_batch)
+test_loader = DataLoader(test_list, batch_size=BATCH_SIZE, shuffle=False, collate_fn=collate_batch)
+
+print(f"Train: {len(train_list)}, Test: {len(test_list)}, Vocab: {len(vocab)}")
+
+
+# ==================== 2. МОДЕЛЬ LSTM ====================
+
+class LSTMSentiment(nn.Module):
+    def __init__(self, vocab_size, embedding_dim=128, hidden_dim=128, num_layers=2, dropout=0.5):
+        super().__init__()
+        self.embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx=vocab['<pad>'])
+        self.lstm = nn.LSTM(embedding_dim, hidden_dim, num_layers, batch_first=True, dropout=dropout,
+                            bidirectional=True)
+        self.dropout = nn.Dropout(dropout)
+        self.fc = nn.Linear(hidden_dim * 2, 1)
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, x):
+        embedded = self.embedding(x)
+        lstm_out, (hidden, cell) = self.lstm(embedded)
+        hidden = torch.cat((hidden[-2, :, :], hidden[-1, :, :]), dim=1)
+        return self.sigmoid(self.fc(self.dropout(hidden))).squeeze()
+
+
+model = LSTMSentiment(len(vocab)).to(device)
+criterion = nn.BCELoss()
+optimizer = optim.Adam(model.parameters(), lr=0.001,weight_decay=1e-4)
+
+print(f"Parameters: {sum(p.numel() for p in model.parameters()):,}")
+
+# ==================== 3. ОБУЧЕНИЕ ====================
+
+epochs = 5
+train_losses, test_accuracies = [], []
+
+
+def accuracy(preds, labels):
+    return (torch.round(preds) == labels).float().mean()
+
+
+for epoch in range(epochs):
+    model.train()
+    total_loss = 0
+    for labels, texts in train_loader:
+        labels, texts = labels.float().to(device), texts.to(device)
+        optimizer.zero_grad()
+        pred = model(texts)
+        loss = criterion(pred, labels)
+        loss.backward()
+        optimizer.step()
+        total_loss += loss.item()
+
+    train_losses.append(total_loss / len(train_loader))
+
+    # Оценка
+    model.eval()
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for labels, texts in test_loader:
+            labels, texts = labels.float().to(device), texts.to(device)
+            pred = model(texts)
+            correct += (torch.round(pred) == labels).sum().item()
+            total += len(labels)
+    acc = 100 * correct / total
+    test_accuracies.append(acc)
+    print(f"Epoch {epoch + 1}: Loss={train_losses[-1]:.4f}, Acc={acc:.2f}%")
+
+print(f"\nИтоговая точность: {test_accuracies[-1]:.2f}%")
+
+# График
+plt.plot(test_accuracies)
+plt.xlabel('Эпоха')
+plt.ylabel('Точность (%)')
+plt.title('Точность на тестовой выборке')
+plt.grid(True)
+plt.show()
+
+# ==================== 4. ДЛИНА ПОСЛЕДОВАТЕЛЬНОСТИ ====================
+
+print("\n=== Влияние длины последовательности ===")
+lengths = [128, 256, 512]
+results = []
+
+for max_len in lengths:
+    def collate_len(batch):
+        labels, texts = [], []
+        for label, text in batch:
+            labels.append(label_pipeline(label))
+            t = torch.tensor(text_pipeline(text))
+            texts.append(t[:max_len] if len(t) > max_len else t)
+        return torch.tensor(labels), pad_sequence(texts, batch_first=True, padding_value=vocab['<pad>'])
+
+
+    loader = DataLoader(test_list, batch_size=BATCH_SIZE, shuffle=False, collate_fn=collate_len)
+
+    model.eval()
+    correct = 0
+    total = 0
+    start = time.time()
+    with torch.no_grad():
+        for labels, texts in loader:
+            labels, texts = labels.float().to(device), texts.to(device)
+            pred = model(texts)
+            correct += (torch.round(pred) == labels).sum().item()
+            total += len(labels)
+    elapsed = time.time() - start
+    acc = 100 * correct / total
+    results.append((max_len, acc, elapsed))
+    print(f"Length {max_len}: Acc={acc:.2f}%, Time={elapsed:.2f}s")
+
+# График зависимости точности от длины
+plt.plot([r[0] for r in results], [r[1] for r in results], 'bo-')
+plt.xlabel('Длина последовательности')
+plt.ylabel('Точность (%)')
+plt.title('Влияние длины на точность')
+plt.grid(True)
+plt.show()
+
+# ==================== 5. СРАВНЕНИЕ LSTM И GRU ====================
+
+print("\n=== Сравнение LSTM и GRU ===")
+
+
+class GRUSentiment(nn.Module):
+    def __init__(self, vocab_size, embedding_dim=128, hidden_dim=128, num_layers=2, dropout=0.5):
+        super().__init__()
+        self.embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx=vocab['<pad>'])
+        self.gru = nn.GRU(embedding_dim, hidden_dim, num_layers, batch_first=True, dropout=dropout, bidirectional=True)
+        self.dropout = nn.Dropout(dropout)
+        self.fc = nn.Linear(hidden_dim * 2, 1)
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, x):
+        embedded = self.embedding(x)
+        gru_out, hidden = self.gru(embedded)
+        hidden = torch.cat((hidden[-2, :, :], hidden[-1, :, :]), dim=1)
+        return self.sigmoid(self.fc(self.dropout(hidden))).squeeze()
+
+
+# Обучение GRU
+gru_model = GRUSentiment(len(vocab)).to(device)
+gru_optimizer = optim.Adam(gru_model.parameters(), lr=0.001)
+
+for epoch in range(3):
+    gru_model.train()
+    for labels, texts in train_loader:
+        labels, texts = labels.float().to(device), texts.to(device)
+        gru_optimizer.zero_grad()
+        loss = criterion(gru_model(texts), labels)
+        loss.backward()
+        gru_optimizer.step()
+
+# Оценка GRU
+gru_model.eval()
+correct = 0
+total = 0
+with torch.no_grad():
+    for labels, texts in test_loader:
+        labels, texts = labels.float().to(device), texts.to(device)
+        pred = gru_model(texts)
+        correct += (torch.round(pred) == labels).sum().item()
+        total += len(labels)
+gru_acc = 100 * correct / total
+
+print(f"LSTM точность: {test_accuracies[-1]:.2f}%")
+print(f"GRU точность: {gru_acc:.2f}%")
+print(f"Параметры LSTM: {sum(p.numel() for p in model.parameters()):,}")
+print(f"Параметры GRU: {sum(p.numel() for p in gru_model.parameters()):,}")
+
+# ==================== 6. АНАЛИЗ ОШИБОК ====================
+
+print("\n=== Анализ ошибок ===")
+
+model.eval()
+false_pos = []  # Отрицательный, предсказан положительный
+false_neg = []  # Положительный, предсказан отрицательный
+
+with torch.no_grad():
+    for labels, texts in test_loader:
+        labels_np = labels.numpy()
+        pred = torch.round(model(texts.to(device))).cpu().numpy()
+        for i in range(len(labels)):
+            if labels_np[i] != pred[i]:
+                if labels_np[i] == 1:
+                    false_neg.append(i)
+                else:
+                    false_pos.append(i)
+
+print(f"Ложно-положительных (neg→pos): {len(false_pos)}")
+print(f"Ложно-отрицательных (pos→neg): {len(false_neg)}")
+print(f"Всего ошибок: {len(false_pos) + len(false_neg)}")
+print(f"Точность на положительных: {(len(test_list) / 2 - len(false_neg)) / (len(test_list) / 2) * 100:.2f}%")
+print(f"Точность на отрицательных: {(len(test_list) / 2 - len(false_pos)) / (len(test_list) / 2) * 100:.2f}%")
+
+
+#pip install torch==2.2.2 torchvision==0.17.2 torchtext==0.17.2 --index-url https://download.pytorch.org/whl/cpu
+#pip install torchdata==0.7.1 --index-url https://download.pytorch.org/whl/cpu
+#pip install portalocker>=2.0.0
