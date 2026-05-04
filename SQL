@@ -41,8 +41,7 @@ CREATE TABLE contract_items (
     id SERIAL PRIMARY KEY,
     contract_id INT REFERENCES contracts(id) ON DELETE CASCADE,
     product_id INT REFERENCES product(id),
-    quantity INT NOT NULL DEFAULT 0,
-    amount DECIMAL(10,2) DEFAULT 0
+    quantity INT NOT NULL DEFAULT 0
 );
 
 -- 5. Отгрузки
@@ -57,93 +56,98 @@ CREATE TABLE shipment_items (
     id SERIAL PRIMARY KEY,
     shipment_id INT REFERENCES shipments(id) ON DELETE CASCADE,
     product_id INT REFERENCES product(id),
-    quantity INT NOT NULL DEFAULT 0,
-    amount DECIMAL(10,2) DEFAULT 0
+    quantity INT NOT NULL DEFAULT 0
 );
 
 -- =====================================================
--- ТЕСТОВЫЕ ДАННЫЕ
+-- ЗАПОЛНЕНИЕ ТАБЛИЦ ТЕСТОВЫМИ ДАННЫМИ
 -- =====================================================
 
--- Клиенты
+-- 1. КЛИЕНТЫ
 INSERT INTO clients (name, adress, phone) VALUES 
 ('ООО "Ромашка"', 'г. Москва, ул. Ленина 1', '+7-495-123-45-67'),
 ('ИП Иванов', 'г. Санкт-Петербург, Невский пр. 10', '+7-812-987-65-43'),
-('ЗАО "Восток"', 'г. Новосибирск, Красный пр. 50', '+7-383-555-12-34');
+('ЗАО "Восток"', 'г. Новосибирск, Красный пр. 50', '+7-383-555-12-34'),
+('ООО "Запад"', 'г. Калининград, ул. Победы 5', '+7-401-222-33-44');
 
--- Товары
+-- 2. ТОВАРЫ
 INSERT INTO product (name, ed, price) VALUES 
-('Ноутбук', 'шт.', 45000),
-('Мышь', 'шт.', 1500),
-('Клавиатура', 'шт.', 2500),
-('Монитор', 'шт.', 18000);
+('Ноутбук Lenovo', 'шт.', 45000.00),
+('Мышь Logitech', 'шт.', 1500.00),
+('Клавиатура Defender', 'шт.', 2500.00),
+('Монитор Samsung', 'шт.', 18000.00),
+('Принтер HP', 'шт.', 12000.00),
+('Флешка 32GB', 'шт.', 800.00);
 
 -- =====================================================
--- ДОГОВОР 1 (ООО "Ромашка", наличные, частичная отгрузка)
+-- ДОГОВОР 1: ООО "Ромашка" (Наличные, частичная отгрузка)
 -- =====================================================
 INSERT INTO contracts (client_id, contract_date, payment_type) VALUES 
 (1, '2026-01-15', 'cash');
 
-INSERT INTO contract_items (contract_id, product_id, quantity, amount) VALUES
-(1, 1, 5, 225000),   -- 5 ноутбуков
-(1, 2, 10, 15000);   -- 10 мышей
+INSERT INTO contract_items (contract_id, product_id, quantity) VALUES
+(1, 1, 5),   -- 5 ноутбуков
+(1, 2, 10);  -- 10 мышей
 
 -- Отгрузка по договору 1 (отгрузили только 2 ноутбука)
 INSERT INTO shipments (contract_id, shipment_date) VALUES 
 (1, '2026-01-20');
 
-INSERT INTO shipment_items (shipment_id, product_id, quantity, amount) VALUES
-(1, 1, 2, 90000);    -- отгрузили 2 ноутбука
+INSERT INTO shipment_items (shipment_id, product_id, quantity) VALUES
+(1, 1, 2);   -- отгрузили 2 ноутбука
 
 -- =====================================================
--- ДОГОВОР 2 (ИП Иванов, безнал, отгрузок нет)
+-- ДОГОВОР 2: ИП Иванов (Безнал, отгрузок нет)
 -- =====================================================
 INSERT INTO contracts (client_id, contract_date, payment_type) VALUES 
 (2, '2026-02-01', 'cashless');
 
-INSERT INTO contract_items (contract_id, product_id, quantity, amount) VALUES
-(2, 3, 3, 7500),     -- 3 клавиатуры
-(2, 4, 2, 36000);    -- 2 монитора
+INSERT INTO contract_items (contract_id, product_id, quantity) VALUES
+(2, 3, 3),   -- 3 клавиатуры
+(2, 4, 2);   -- 2 монитора
 
--- Отгрузок нет
+-- Отгрузок по договору 2 нет
 
 -- =====================================================
--- ДОГОВОР 3 (ЗАО "Восток", наличные, полная отгрузка)
+-- ДОГОВОР 3: ЗАО "Восток" (Наличные, полная отгрузка)
 -- =====================================================
 INSERT INTO contracts (client_id, contract_date, payment_type) VALUES 
 (3, '2026-02-10', 'cash');
 
-INSERT INTO contract_items (contract_id, product_id, quantity, amount) VALUES
-(3, 2, 20, 30000);   -- 20 мышей
+INSERT INTO contract_items (contract_id, product_id, quantity) VALUES
+(3, 2, 20);  -- 20 мышей
 
--- Полная отгрузка
+-- Полная отгрузка по договору 3
 INSERT INTO shipments (contract_id, shipment_date) VALUES 
 (3, '2026-02-15');
 
-INSERT INTO shipment_items (shipment_id, product_id, quantity, amount) VALUES
-(2, 2, 20, 30000);   -- отгрузили все 20 мышей
+INSERT INTO shipment_items (shipment_id, product_id, quantity) VALUES
+(2, 2, 20);  -- отгрузили все 20 мышей
 
 -- =====================================================
--- ДОГОВОР 4 (ООО "Ромашка", безнал, без отгрузки)
+-- ДОГОВОР 4: ООО "Ромашка" (Безнал, без отгрузки)
 -- =====================================================
 INSERT INTO contracts (client_id, contract_date, payment_type) VALUES 
 (1, '2026-03-01', 'cashless');
 
-INSERT INTO contract_items (contract_id, product_id, quantity, amount) VALUES
-(4, 1, 3, 135000);   -- 3 ноутбука
+INSERT INTO contract_items (contract_id, product_id, quantity) VALUES
+(4, 1, 3);   -- 3 ноутбука
 
--- Отгрузок нет
+-- Отгрузок по договору 4 нет
 
 -- =====================================================
--- ПРОВЕРОЧНЫЕ ЗАПРОСЫ (для тестирования)
+-- ДОГОВОР 5: ООО "Запад" (Наличные, частичная отгрузка)
 -- =====================================================
+INSERT INTO contracts (client_id, contract_date, payment_type) VALUES 
+(4, '2026-03-15', 'cash');
 
--- Посмотреть все договоры
-SELECT * FROM contracts;
+INSERT INTO contract_items (contract_id, product_id, quantity) VALUES
+(5, 5, 2),   -- 2 принтера
+(5, 6, 10);  -- 10 флешек
 
--- Посмотреть все позиции договоров
-SELECT * FROM contract_items;
+-- Частичная отгрузка по договору 5
+INSERT INTO shipments (contract_id, shipment_date) VALUES 
+(5, '2026-03-20');
 
--- Посмотреть все отгрузки
-SELECT * FROM shipments;
-SELECT * FROM shipment_items;
+INSERT INTO shipment_items (shipment_id, product_id, quantity) VALUES
+(3, 5, 1);   -- отгрузили 1 принтер
