@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-auth-service
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: auth-service
+spec:
+  replicas: {{ .Values.replicaCount.auth }}
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+      - name: auth-app
+        image: {{ .Values.image.auth }}
+        imagePullPolicy: {{ .Values.pullPolicy }}
+        ports:
+        - containerPort: 5000
+        env:
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-auth-secret
+              key: JWT_SECRET
+        - name: API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-auth-secret
+              key: API_KEY
+        - name: AUTH_TITLE
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-config
+              key: AUTH_TITLE
+        - name: AUTH_WELCOME
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-config
+              key: AUTH_WELCOME
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-config
+              key: LOG_LEVEL
+        - name: POSTGRES_HOST
+          value: "{{ .Release.Name }}-postgres-db"
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-db-secret
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-db-secret
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-db-secret
+              key: POSTGRES_DB
+        - name: PROFILE_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-config
+              key: PROFILE_SERVICE_URL
+        {{- if .Values.probes.auth.enabled }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: {{ .Values.probes.auth.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.probes.auth.livenessProbe.periodSeconds }}
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: {{ .Values.probes.auth.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.probes.auth.readinessProbe.periodSeconds }}
+        {{- end }}
+        # УДАЛИТЕ volumeMounts — Flask не нужен HTML от nginx
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-auth-service
+  namespace: {{ .Values.namespace }}
+spec:
+  type: NodePort
+  selector:
+    app: auth-service
+  ports:
+  - port: 8000
+    targetPort: 5000
+    nodePort: 30007

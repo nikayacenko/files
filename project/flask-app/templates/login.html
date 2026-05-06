@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Management - Вход</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh;">
+    <div class="content" style="max-width: 500px;">
+        <h1>F1 Management System</h1>
+        <div class="card" style="background: #ff5700;">
+            <h3>Авторизация</h3>
+            {% if error %}
+                <p class="error">{{ error }}</p>
+            {% endif %}
+            <form method="POST">
+                <input type="text" name="username" placeholder="Логин" required style="width: 90%;">
+                <input type="password" name="password" placeholder="Пароль" required style="width: 90%;">
+                <button type="submit">Войти</button>
+            </form>
+            <p style="color: white; margin-top: 20px; font-size: 14px;">
+                Тестовые: admin/admin123 | user/user123
+            </p>
+        </div>
+    </div>
+</body>
+</html>

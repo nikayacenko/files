@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Management - Уведомления</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="content">
+        <h1>Уведомления F1</h1>
+        <div class="nav">
+            <a href="/home">Главная</a>
+            <a href="/profile">Профиль</a>
+            <a href="/notifications">Уведомления</a>
+            {% if is_admin %}
+                <a href="/admin">Панель-уведомлений</a>
+            {% endif %}
+            <a href="/logout">Выход</a>
+        </div>
+        
+        <div class="table-container">
+            <table>
+                <tr><th>Заголовок</th><th>Сообщение</th><th>Дата</th></tr>
+                {% for n in notifications %}
+                <tr>
+                    <td><strong>{{ n.title }}</strong></td>
+                    <td>{{ n.message }}</td>
+                    <td>{{ n.date }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</body>
+</html>

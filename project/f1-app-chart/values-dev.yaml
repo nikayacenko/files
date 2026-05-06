@@ -1,0 +1,96 @@
+# f1-app-chart/values-dev.yaml
+replicaCount:
+  auth: 1
+  profile: 1
+  notification: 1
+  postgres: 1
+
+image:
+  auth: auth-app:latest
+  profile: auth-app:latest
+  notification: auth-app:latest
+  postgres: postgres:15-alpine
+  busybox: busybox:latest
+
+pullPolicy: IfNotPresent
+
+service:
+  auth:
+    type: NodePort
+    port: 8000
+    targetPort: 5000
+    nodePort: 30007
+  profile:
+    type: ClusterIP
+    port: 8000
+    targetPort: 5000
+  notification:
+    type: ClusterIP
+    port: 8000
+    targetPort: 5000
+
+config:
+  AUTH_TITLE: "[DEV] F1 Management System"
+  AUTH_WELCOME: "[DEV] Welcome to F1 Management System"
+  PROFILE_SERVICE_URL: "http://f1-app-profile-service:8000"
+  NOTIFICATION_SERVICE_URL: "http://f1-app-notification-service:8000"
+  LOG_LEVEL: "DEBUG"
+
+secrets:
+  db:
+    POSTGRES_USER: app_user
+    POSTGRES_PASSWORD: DevPass123
+    POSTGRES_DB: userdb
+  auth:
+    JWT_SECRET: "dev-secret-key"
+    API_KEY: "dev-api-key"
+
+probes:
+  auth:
+    enabled: true
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 5000
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readinessProbe:
+      httpGet:
+        path: /health
+        port: 5000
+      initialDelaySeconds: 10
+      periodSeconds: 5
+  profile:
+    enabled: true
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 5000
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readinessProbe:
+      httpGet:
+        path: /health
+        port: 5000
+      initialDelaySeconds: 10
+      periodSeconds: 5
+  notification:
+    enabled: true
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 5000
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readinessProbe:
+      httpGet:
+        path: /health
+        port: 5000
+      initialDelaySeconds: 10
+      periodSeconds: 5
+
+ingress:
+  enabled: false
+
+cronjob:
+  schedule: "*/10 * * * *"

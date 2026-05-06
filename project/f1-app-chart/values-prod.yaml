@@ -1,0 +1,42 @@
+# f1-app-chart/values-prod.yaml
+replicaCount:
+  auth: 3
+  profile: 3
+  notification: 3
+  postgres: 1
+
+config:
+  AUTH_TITLE: "F1 Management System"
+  AUTH_WELCOME: "Welcome to F1 Management System"
+  LOG_LEVEL: "INFO"
+
+secrets:
+  db:
+    POSTGRES_PASSWORD: ProdSecurePass2024!
+  auth:
+    JWT_SECRET: "xK9mP2vL5nQ8rT1wY4bZ7cF3gH6jK0pL_PROD"
+    API_KEY: "prod-api-key"
+
+probes:
+  auth:
+    livenessProbe:
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readinessProbe:
+      initialDelaySeconds: 15
+      periodSeconds: 5
+
+ingress:
+  enabled: true
+  host: app-01.example.com
+
+cronjob:
+  schedule: "*/5 * * * *"
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 200m
+    memory: 256Mi

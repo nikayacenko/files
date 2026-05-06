@@ -1,0 +1,58 @@
+# f1-app-chart/templates/init-job.yaml
+{{- if .Values.initJob.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-init-db
+  namespace: {{ .Values.namespace }}
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: init-db
+        image: {{ .Values.image.postgres }}
+        imagePullPolicy: {{ .Values.pullPolicy }}
+        env:
+        - name: POSTGRES_HOST
+          value: "{{ .Release.Name }}-postgres-db"
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-db-secret
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-db-secret
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-db-secret
+              key: POSTGRES_DB
+        command:
+        - /bin/sh
+        - -c
+        - |
+          export PGPASSWORD=$POSTGRES_PASSWORD
+          psql -h $POSTGRES_HOST -U $POSTGRES_USER -d $POSTGRES_DB <<EOF
+          CREATE TABLE IF NOT EXISTS users (
+              id SERIAL PRIMARY KEY,
+              username VARCHAR(100) UNIQUE NOT NULL,
+              password_hash VARCHAR(255) NOT NULL,
+              email VARCHAR(100),
+              created_at TIMESTAMP DEFAULT NOW()
+          );
+          INSERT INTO users (username, password_hash, email) 
+          VALUES ('admin', encode(sha256('admin123'::bytea), 'hex'), 'admin@example.com')
+          ON CONFLICT (username) DO NOTHING;
+          INSERT INTO users (username, password_hash, email) 
+          VALUES ('user', encode(sha256('user123'::bytea), 'hex'), 'user@example.com')
+          ON CONFLICT (username) DO NOTHING;
+          INSERT INTO users (username, password_hash, email) 
+          VALUES ('max', encode(sha256('racewinner'::bytea), 'hex'), 'max@f1.com')
+          ON CONFLICT (username) DO NOTHING;
+          SELECT 'Database initialized! Users added.' as status;
+          EOF
+{{- end }}

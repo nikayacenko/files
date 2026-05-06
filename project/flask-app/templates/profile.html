@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Management - Профиль</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="content">
+        <h1>Профиль пользователя</h1>
+        <div class="nav">
+            <a href="/home">Главная</a>
+            <a href="/profile">Профиль</a>
+            <a href="/notifications">Уведомления</a>
+            {% if is_admin %}
+                <a href="/admin">Панель-уведомлений</a>
+            {% endif %}
+            <a href="/logout">Выход</a>
+        </div>
+        
+        <div class="table-container">
+            <table>
+                <tr><th>Поле</th><th>Значение</th></tr>
+                <tr><td><strong>Логин</strong></td><td>{{ username }}</td></tr>
+                <tr><td><strong>Email</strong></td><td>{{ username }}@f1.com</td></tr>
+                <tr><td><strong>Роль</strong></td><td>{{ "Администратор" if is_admin else "Пользователь" }}</td></tr>
+                <tr><td><strong>Любимая команда</strong></td><td>Ferrari</td></tr>
+                <tr><td><strong>Любимый пилот</strong></td><td>Charles Leclerc / Max Verstappen</td></tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

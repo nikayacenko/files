@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-notification-service
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: notification-service
+spec:
+  replicas: {{ .Values.replicaCount.notification }}
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+    spec:
+      containers:
+      - name: notification-app
+        image: {{ .Values.image.notification }}
+        imagePullPolicy: {{ .Values.pullPolicy }}
+        ports:
+        - containerPort: 5000
+        env:
+        - name: ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-notification-secret
+              key: ADMIN_PASSWORD
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-config
+              key: LOG_LEVEL
+        - name: POSTGRES_HOST
+          value: "{{ .Release.Name }}-postgres-db"
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-db-secret
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-db-secret
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-db-secret
+              key: POSTGRES_DB
+        {{- if .Values.probes.notification.enabled }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: {{ .Values.probes.notification.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.probes.notification.livenessProbe.periodSeconds }}
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: {{ .Values.probes.notification.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.probes.notification.readinessProbe.periodSeconds }}
+        {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-notification-service
+  namespace: {{ .Values.namespace }}
+spec:
+  type: NodePort
+  selector:
+    app: notification-service
+  ports:
+  - port: 8000
+    targetPort: 5000
+    nodePort: 30009

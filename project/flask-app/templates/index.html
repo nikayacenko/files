@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Management - Главная</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="content">
+        <h1>F1 Management System</h1>
+        
+        <div style="display: flex; flex-wrap: wrap; justify-content: center;">
+        <div class="card" style="flex: 1; min-width: 250px;">
+            <h3>Профиль</h3>
+            <p>Ваши персональные данные и настройки</p>
+            <a href="/profile"><button>Перейти</button></a>
+        </div>
+        <div class="card" style="flex: 1; min-width: 250px;">
+            <h3>Уведомления</h3>
+            <p>Новости F1 и важные события</p>
+            <a href="/notifications"><button>Перейти</button></a>
+        </div>
+        {% if is_admin %}
+        <div class="card" style="flex: 1; min-width: 250px;">
+            <h3>Панель-уведомлений</h3>
+            <p>Управление уведомлениями</p>
+            <a href="/admin"><button>Перейти</button></a>
+        </div>
+        {% endif %}
+    </div>
+        
+        <div style="text-align: center; margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px;">
+            <h2>Добро пожаловать, {{ username }}!</h2>
+            <p>Вы вошли как <strong>{{ "Администратор" if is_admin else "Пользователь" }}</strong></p>
+        </div>
+    </div>
+</body>
+</html>

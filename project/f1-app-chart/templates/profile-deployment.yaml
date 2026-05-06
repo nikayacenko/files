@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-profile-service
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: profile-service
+spec:
+  replicas: {{ .Values.replicaCount.profile }}
+  selector:
+    matchLabels:
+      app: profile-service
+  template:
+    metadata:
+      labels:
+        app: profile-service
+    spec:
+      containers:
+      - name: profile-app
+        image: {{ .Values.image.profile }}
+        imagePullPolicy: {{ .Values.pullPolicy }}
+        ports:
+        - containerPort: 5000
+        env:
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-config
+              key: LOG_LEVEL
+        - name: POSTGRES_HOST
+          value: "{{ .Release.Name }}-postgres-db"
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-db-secret
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-db-secret
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-db-secret
+              key: POSTGRES_DB
+        {{- if .Values.probes.profile.enabled }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: {{ .Values.probes.profile.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.probes.profile.livenessProbe.periodSeconds }}
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: {{ .Values.probes.profile.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.probes.profile.readinessProbe.periodSeconds }}
+        {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-profile-service
+  namespace: {{ .Values.namespace }}
+spec:
+  type: NodePort
+  selector:
+    app: profile-service
+  ports:
+  - port: 8000
+    targetPort: 5000
+    nodePort: 30008

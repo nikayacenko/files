@@ -1,0 +1,63 @@
+# f1-app-chart/values.yaml
+namespace: exam-yacenko
+
+# Количество реплик
+replicaCount:
+  auth: 2
+  profile: 2
+  notification: 2
+  postgres: 1
+
+# Образы
+image:
+  auth: crccheck/hello-world
+  profile: crccheck/hello-world
+  notification: crccheck/hello-world
+  postgres: postgres:15-alpine
+  busybox: busybox:latest
+
+pullPolicy: IfNotPresent
+
+# Параметры проб
+
+
+# ConfigMap данные
+config:
+  AUTH_TITLE: "F1 Management System"
+  AUTH_WELCOME: "Welcome to Formula 1 Management System"
+  AUTH_FOOTER: "© 2024 F1 Championship"
+  PROFILE_TITLE: "User Profile"
+  PROFILE_MESSAGE: "User profile information"
+  NOTIFY_TITLE: "Notification Service"
+  NOTIFY_MESSAGE: "System notifications"
+  PROFILE_SERVICE_URL: "http://{{ .Release.Name }}-profile-service:8000"
+  NOTIFICATION_SERVICE_URL: "http://{{ .Release.Name }}-notification-service:8000"
+
+# Secrets
+secrets:
+  db:
+    POSTGRES_USER: app_user
+    POSTGRES_PASSWORD: SecurePass123
+    POSTGRES_DB: userdb
+  auth:
+    JWT_SECRET: "xK9mP2vL5nQ8rT1wY4bZ7cF3gH6jK0pL"
+    API_KEY: "f1-api-key-2024"
+
+# Ingress
+ingress:
+  enabled: true
+  host: app-01.example.com
+  secretName: app-tls-secret
+
+# CronJob
+cronjob:
+  enabled: true
+  schedule: "*/5 * * * *"
+
+# Job инициализации БД
+initJob:
+  enabled: true
+
+# emptyDir для кэша
+emptyDir:
+  enabled: true
