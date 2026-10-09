@@ -1,0 +1,1883 @@
+//#include <iostream>
+//#include <random>
+//#include <chrono>
+//#include <queue>
+//using namespace std;
+//
+//int main() {
+//	setlocale(LC_ALL, "Russian");
+//    // Параметры распределений
+//    double t1 = 5.0, t2 = 7.0;   // интервал поступления
+//    double s1 = 4.0, s2 = 6.0;   // время выполнения
+//
+//    // Генератор случайных чисел
+//    mt19937 mt(static_cast<unsigned>(
+//        chrono::steady_clock::now().time_since_epoch().count()
+//        ));
+//    uniform_real_distribution<> mygenT(t1, t2);
+//    uniform_real_distribution<> mygenS(s1, s2);
+//
+//    // Переменные состояния
+//    double start_t = 0;          // время начала обслуживания текущей заявки
+//    double av = 0;              // время освобождения сервера
+//    double cur_t;               // текущее время
+//    int rejected = 0;           // счётчик отклонённых
+//
+//    // Генерируем первую заявку
+//    double time = mygenT(mt);
+//    double duration = mygenS(mt);
+//    start_t += time;
+//    av = start_t + duration;
+//
+//    // Цикл по 10000 заявок (начиная со второй)
+//    for (int i = 1; i < 10000; i++) {
+//        time = mygenT(mt);          // интервал до следующей заявки
+//        cur_t = start_t + time;     // момент прихода
+//
+//        if (cur_t >= av) {          // сервер свободен
+//            duration = mygenS(mt);  // генерируем время выполнения
+//            start_t = cur_t;        // обновляем начало обслуживания
+//            av = start_t + duration; // новое время освобождения
+//        }
+//        else {
+//            rejected++;             
+//        }
+//    }
+//
+//    // Результаты
+//    double rejection_prob = (double)rejected / 10000.0;
+//    cout << "Вероятность отказа: " << rejection_prob << "\n";
+//
+//    return 0;
+//}
+
+//#include <iostream>
+//#include <random>
+//#include <chrono>
+//#include <queue>
+//
+//using namespace std;
+//
+//int main() {
+//    // Параметры
+//    double t1 = 5.0, t2 = 7.0;   // интервал поступления
+//    double s1 = 4.0, s2 = 6.0;   // время обслуживания
+//
+//    // Генераторы
+//    mt19937 mt(static_cast<unsigned>(
+//        chrono::steady_clock::now().time_since_epoch().count()
+//        ));
+//    uniform_real_distribution<> genT(t1, t2);
+//    uniform_real_distribution<> genS(s1, s2);
+//    queue<double> q;
+//    // Переменные состояния
+//    double server_free_time = 0;  // когда сервер освободится
+//    double current_time = 0;      // текущее модельное время
+//
+//    int total_requests = 0;
+//    double sum_queue_length = 0;  // сумма длин очереди (взвешенная по времени)
+//    double previous_time = 0;     // время последнего измерения
+//    int queue_len = 0;            // текущая длина очереди
+//
+//    // Симуляция
+//    for (int i = 0; i < 100000; ++i) {
+//        // 1) Приход заявки
+//        double tau = genT(mt);
+//        double arrival_time = current_time + tau;
+//
+//        // 2) Добавляем взвешенную длину очереди за прошедший интервал
+//        sum_queue_length += queue_len * (arrival_time - current_time);
+//
+//        current_time = arrival_time;
+//
+//        // 3) Освобождаем сервер и выталкиваем из очереди выполненные заявки
+//        while (!q.empty() && q.front() <= current_time) {
+//            q.pop();
+//            queue_len--;
+//        }
+//       
+//
+//        // 4) Генерируем время обслуживания
+//        double sigma = genS(mt);
+//
+//        // 5) Отправляем на обслуживание
+//        if (server_free_time <= current_time) {
+//            // Сервер свободен → сразу на обслуживание
+//            server_free_time = current_time + sigma;
+//        }
+//        else {
+//            // Сервер занят → в очередь (увеличиваем длину)
+//            q.push(server_free_time + sigma);
+//            queue_len++;
+//            // Обновляем время освобождения сервера
+//            server_free_time += sigma;
+//        }
+//
+//        total_requests++;
+//    }
+//
+//    // Средняя длина очереди (взвешенная по времени)
+//    double avg_queue = sum_queue_length / current_time;
+//
+//    cout << "=========================\n";
+//    cout << "Всего заявок: " << total_requests << "\n";
+//    cout << "Общее время: " << current_time << "\n";
+//    cout << "Средняя длина очереди: " << avg_queue << "\n";
+//    cout << "=========================\n";
+//
+//    return 0;
+//}
+
+//#include <iostream>
+//#include <random>
+//#include <chrono>
+//
+//using namespace std;
+//
+//int main() {
+//    double t1 = 5.0, t2 = 7.0;
+//    double s1 = 4.0, s2 = 6.0;
+//
+//    mt19937 mt(static_cast<unsigned>(
+//        chrono::steady_clock::now().time_since_epoch().count()
+//    ));
+//    uniform_real_distribution<> genT(t1, t2);
+//    uniform_real_distribution<> genS(s1, s2);
+//
+//    double current_time = 0;
+//    double server_free_time = 0;
+//    int queue_len = 0;
+//    double sum_queue = 0;
+//    int total = 100000;
+//
+//    for (int i = 0; i < total; ++i) {
+//        double tau = genT(mt);
+//        current_time += tau;
+//
+//        // Сколько заявок успело обслужиться за прошедшее время?
+//        // (упрощённо: если сервер освободился — очередь могла уменьшиться)
+//        if (current_time >= server_free_time) {
+//            // Сервер свободен → заявка идёт сразу, очередь не растёт
+//            // (но если очередь была — она могла уменьшиться, но не больше чем на 1)
+//            if (queue_len > 0) queue_len--;
+//            double sigma = genS(mt);
+//            server_free_time = current_time + sigma;
+//        } else {
+//            // Сервер занят → заявка в очередь
+//            queue_len++;
+//            double sigma = genS(mt);
+//            server_free_time += sigma;
+//        }
+//
+//        sum_queue += queue_len;
+//    }
+//
+//    cout << "Средняя длина очереди: " << sum_queue / total << "\n";
+//    return 0;
+//}
+
+//#include <iostream>
+//#include <random>
+//#include <chrono>
+//#include <queue>
+//
+//using namespace std;
+//
+//int main() {
+//    double t1 = 5.0, t2 = 7.0;
+//    double s1 = 4.0, s2 = 6.0;
+//
+//    mt19937 mt(static_cast<unsigned>(
+//        chrono::steady_clock::now().time_since_epoch().count()
+//        ));
+//    uniform_real_distribution<> genT(t1, t2);
+//    uniform_real_distribution<> genS(s1, s2);
+//
+//    queue<double> q;
+//    double current_time = 0;
+//    double server_free_time = 0;
+//    double sum_queue = 0;
+//    double prev_time = 0;
+//    int total = 100000;
+//
+//    for (int i = 0; i < total; ++i) {
+//        current_time += genT(mt);
+//
+//        // уходы до прихода
+//        double t_prev = prev_time;
+//        while (!q.empty() && q.front() <= current_time) {
+//            sum_queue += q.size() * (q.front() - t_prev);
+//            t_prev = q.front();
+//            q.pop();
+//        }
+//        sum_queue += q.size() * (current_time - t_prev);
+//        prev_time = current_time;
+//
+//        // новая заявка
+//        double sigma = genS(mt);
+//        if (q.empty() && current_time >= server_free_time) {
+//            server_free_time = current_time + sigma;
+//        }
+//        else {
+//            server_free_time += sigma;
+//            q.push(server_free_time);
+//        }
+//    }
+//
+//    cout << "Средняя длина очереди: " << sum_queue / current_time << "\n";
+//    return 0;
+//}
+//////////////////////////////////////////////////////////////////
+
+
+//#include <iostream>
+//#include <random>
+//#include <chrono>
+//#include <iomanip>
+//#include <algorithm>
+//
+//using namespace std;
+//
+//int main() {
+//    setlocale(LC_ALL, "Ru");
+//
+//    // Интервалы между приходами заявок
+//    double t1 = 5.0, t2 = 7.0;
+//
+//    // Время обслуживания
+//    double s1 = 4.0, s2 = 6.0;
+//
+//    mt19937 mt(static_cast<unsigned>(
+//        chrono::steady_clock::now().time_since_epoch().count()
+//        ));
+//
+//    uniform_real_distribution<double> genT(t1, t2);
+//    uniform_real_distribution<double> genS(s1, s2);
+//
+//    const int total = 10000000;
+//
+//    double curr_t = 0.0;       // Время прихода текущей заявки
+//    double server_t = 0.0;     // Время завершения предыдущего обслуживания
+//
+//    double sum_q = 0.0;        // Интеграл длины очереди по времени
+//    double sum_system = 0.0;   // Интеграл числа заявок в системе
+//
+//    double prev_time = 0.0;
+//    int waiting_count = 0;     // Число заявок, ожидающих обслуживания
+//    int waited = 0;
+//
+//    for (int i = 0; i < total; ++i) {
+//        // Генерируем время прихода новой заявки
+//        curr_t += genT(mt);
+//
+//        // Если сервер успел освободиться до прихода,
+//        // очередь ожидания к этому моменту опустела.
+//        double dt = curr_t - prev_time;
+//
+//        sum_q += waiting_count * dt;
+//
+//        // Число заявок в системе: ожидающие + обслуживаемая.
+//        // Сервер занят на интервале, если server_t > prev_time.
+//        double busy_dt = max(0.0, min(curr_t, server_t) - prev_time);
+//        sum_system += (waiting_count + (busy_dt > 0.0 ? 1 : 0)) * dt;
+//
+//        // Если обслуживание завершилось до прихода,
+//        // очередь ожидания не может содержать старые заявки.
+//        if (server_t <= curr_t) {
+//            waiting_count = 0;
+//        }
+//
+//        prev_time = curr_t;
+//
+//        double sigma = genS(mt);
+//
+//        if (curr_t < server_t) {
+//            // Сервер занят: новая заявка ждёт.
+//            waiting_count++;
+//            waited++;
+//            server_t += sigma;
+//        }
+//        else {
+//            // Сервер свободен: обслуживание начинается сразу.
+//            server_t = curr_t + sigma;
+//        }
+//    }
+//
+//    // Учитываем завершение всех оставшихся заявок.
+//    double last_arrival = curr_t;
+//    double end_time = max(curr_t, server_t);
+//
+//    if (end_time > prev_time) {
+//        double dt = end_time - prev_time;
+//        sum_q += waiting_count * dt;
+//        sum_system += (waiting_count + 1) * dt;
+//    }
+//
+//    double total_time = end_time;
+//
+//    cout << fixed << setprecision(6);
+//
+//    cout << "Средняя длина очереди: "
+//        << sum_q / total_time << "\n";
+//
+//    cout << "Среднее число заявок в системе: "
+//        << sum_system / total_time << "\n";
+//
+//    cout << "Процент ожидающих заявок: "
+//        << 100.0 * waited / total << "%\n";
+//
+//    cout << "Загрузка по средним временам: "
+//        << ((s1 + s2) / 2.0) / ((t1 + t2) / 2.0)
+//        << "\n";
+//
+//    return 0;
+//}
+
+
+#include <iostream>
+#include <random>
+#include <chrono>
+#include <queue>
+#include <iomanip>
+#include <cmath>
+#include <algorithm>
+
+using namespace std;
+
+int main() {
+    setlocale(LC_ALL, "Ru");
+
+    double t1 = 1.0, t2 = 7.0;
+    double s1 = 1.0, s2 = 6.0;
+
+    // Математические ожидания равномерных распределений
+    double mtau = (t1 + t2) / 2.0;
+    double msigma = (s1 + s2) / 2.0;
+
+    double rho = msigma / mtau;
+
+    cout << fixed << setprecision(6);
+    cout << "Mtau = " << mtau
+        << " Msigma = " << msigma << endl;
+    cout << "Загрузка по средним временам: "
+        << rho << endl << endl;
+
+    mt19937 mt(static_cast<unsigned>(
+        chrono::steady_clock::now().time_since_epoch().count()
+        ));
+
+    uniform_real_distribution<double> genT(t1, t2);
+    uniform_real_distribution<double> genS(s1, s2);
+
+    queue<double> q;  // Времена завершения обслуживания заявок
+    double curr_t = 0.0;
+    double server_t = 0.0;
+    double sum_q = 0.0;
+    double prev_t = 0.0;
+    double total_wait = 0.0;
+
+    const int N = 10000000;
+    int waited = 0;
+
+    for (int i = 0; i < N; ++i) {
+        curr_t += genT(mt);
+
+        // Обрабатываем завершения обслуживания до текущего прихода
+        while (!q.empty() && q.front() <= curr_t) {
+            double dt = q.front() - prev_t;
+
+            // q содержит обслуживаемую заявку и ожидающие
+            int waiting = max(0, static_cast<int>(q.size()) - 1);
+            sum_q += waiting * dt;
+
+            prev_t = q.front();
+            q.pop();
+        }
+
+        // Учитываем длину очереди до текущего прихода
+        double dt = curr_t - prev_t;
+        int waiting = max(0, static_cast<int>(q.size()) - 1);
+        sum_q += waiting * dt;
+        prev_t = curr_t;
+
+        double sigma = genS(mt);
+
+        if (curr_t < server_t) {
+            // Заявка вынуждена ждать
+            total_wait += server_t - curr_t;
+            waited++;
+
+            server_t += sigma;
+        }
+        else {
+            // Сервер свободен
+            server_t = curr_t + sigma;
+        }
+
+        q.push(server_t);
+    }
+
+    cout << "Результаты моделирования:" << endl;
+    cout << "Средняя длина очереди: "
+        << sum_q / prev_t << endl;
+    cout << "Среднее время ожидания: "
+        << total_wait / N << endl;
+    cout << "Процент ожидающих заявок: "
+        << 100.0 * waited / N << "%" << endl;
+
+    return 0;
+}
+
+//#include <iostream>
+//#include <random>
+//#include <chrono>
+//#include <queue>
+//#include <iomanip>
+//#include <cmath>
+//#include <algorithm>
+//#include <clocale>
+//
+//using namespace std;
+//
+//int main() {
+//    setlocale(LC_ALL, "Ru");
+//
+//    // Параметры исходных равномерных распределений,
+//    // используемые для задания средних значений
+//    double tau1 = 1.0, tau2 = 7.0;
+//    double sigma1 = 1.0, sigma2 = 6.0;
+//
+//    double mtau = (tau1 + tau2) / 2.0;
+//    double msigma = (sigma1 + sigma2) / 2.0;
+//
+//    // Интенсивности для модели M/M/1
+//    double lambda = 1.0 / mtau;
+//    double mu = 1.0 / msigma;
+//    double rho = lambda / mu;
+//
+//    cout << fixed << setprecision(6);
+//
+//    cout << "Mtau = " << mtau
+//        << ", Msigma = " << msigma << endl;
+//
+//    cout << "Интенсивность поступления lambda = "
+//        << lambda << endl;
+//    cout << "Интенсивность обслуживания mu = "
+//        << mu << endl;
+//    cout << "Коэффициент загрузки rho = "
+//        << rho << endl << endl;
+//
+//    if (rho >= 1.0) {
+//        cout << "Система неустойчива: rho должно быть меньше 1."
+//            << endl;
+//        return 1;
+//    }
+//
+//    mt19937 mt(static_cast<unsigned>(
+//        chrono::steady_clock::now().time_since_epoch().count()
+//        ));
+//
+//    // Экспоненциальные распределения: модель M/M/1
+//    exponential_distribution<double> genT(lambda);
+//    exponential_distribution<double> genS(mu);
+//
+//    const int N = 10000000;
+//
+//    // В q хранятся времена завершения всех заявок,
+//    // которые ещё находятся в системе
+//    queue<double> q;
+//
+//    double curr_t = 0.0;
+//    double server_t = 0.0;
+//    double prev_t = 0.0;
+//
+//    double sum_q = 0.0;
+//    double total_wait = 0.0;
+//    int waited = 0;
+//
+//    for (int i = 0; i < N; ++i) {
+//        curr_t += genT(mt);
+//
+//        // Учитываем завершения обслуживания до текущего прихода
+//        while (!q.empty() && q.front() <= curr_t) {
+//            double event_t = q.front();
+//            double dt = event_t - prev_t;
+//
+//            int waiting = max(
+//                0, static_cast<int>(q.size()) - 1
+//            );
+//
+//            sum_q += waiting * dt;
+//
+//            prev_t = event_t;
+//            q.pop();
+//        }
+//
+//        // Учитываем длину очереди до текущего прихода
+//        double dt = curr_t - prev_t;
+//
+//        int waiting = max(
+//            0, static_cast<int>(q.size()) - 1
+//        );
+//
+//        sum_q += waiting * dt;
+//        prev_t = curr_t;
+//
+//        double sigma = genS(mt);
+//
+//        if (curr_t < server_t) {
+//            // Заявка ждёт завершения предыдущих заявок
+//            total_wait += server_t - curr_t;
+//            ++waited;
+//
+//            server_t += sigma;
+//        }
+//        else {
+//            // Сервер свободен: обслуживание начинается сразу
+//            server_t = curr_t + sigma;
+//        }
+//
+//        q.push(server_t);
+//    }
+//
+//    // Итоговые показатели моделирования
+//    double Lq = sum_q / prev_t;
+//    double Wq = total_wait / N;
+//    double Pwait = static_cast<double>(waited) / N;
+//
+//    // Аналитические показатели M/M/1
+//    double Lq_theory =
+//        lambda * lambda / (mu * (mu - lambda));
+//
+//    double Wq_theory =
+//        lambda / (mu * (mu - lambda));
+//
+//    cout << "Результаты моделирования:" << endl;
+//    cout << "Средняя длина очереди Lq = "
+//        << Lq << endl;
+//    cout << "Среднее время ожидания Wq = "
+//        << Wq << endl;
+//    cout << "Доля заявок, которым пришлось ждать = "
+//        << 100.0 * Pwait << "%" << endl;
+//
+//    cout << "\nАналитические результаты M/M/1:" << endl;
+//    cout << "Вероятность занятости сервера rho = "
+//        << rho << endl;
+//    cout << "Средняя длина очереди Lq = "
+//        << Lq_theory << endl;
+//    cout << "Среднее время ожидания Wq = "
+//        << Wq_theory << endl;
+//
+//    cout << "\nОтклонение от теории:" << endl;
+//
+//    cout << "Lq: "
+//        << 100.0 * abs(Lq - Lq_theory) / Lq_theory
+//        << "%" << endl;
+//
+//    cout << "Wq: "
+//        << 100.0 * abs(Wq - Wq_theory) / Wq_theory
+//        << "%" << endl;
+//
+//    cout << "Доля ожидающих заявок и rho не обязаны совпадать "
+//        << "в конкретном запуске." << endl;
+//
+//    return 0;
+//}
+//
+
+
+//#include <iostream>
+//#include <random>
+//#include <chrono>
+//#include <queue>
+//
+//using namespace std;
+//
+//int main() {
+//    setlocale(LC_ALL, "Ru");
+//    double t1 = 1.0, t2 = 7.0;
+//    double s1 = 1.0, s2 = 6.0;
+//
+//    mt19937 mt(static_cast<unsigned>(
+//        chrono::steady_clock::now().time_since_epoch().count()
+//        ));
+//    uniform_real_distribution<> genT(t1, t2);
+//    uniform_real_distribution<> genS(s1, s2);
+//
+//    queue<double> q;
+//    double curr_t = 0;
+//    double server_t = 0;
+//    double sum_q = 0;
+//    double prev_time = 0;
+//    int total = 10000;
+//    int waited = 0;
+//
+//    for (int i = 0; i < total; ++i) {
+//        curr_t += genT(mt);
+//
+//        // Взвешивание с учётом уходов
+//        while (!q.empty() && q.front() <= curr_t) {
+//            sum_q += q.size() * (q.front() - prev_time);
+//            prev_time = q.front();
+//            q.pop();
+//        }
+//        sum_q += q.size() * (curr_t - prev_time);
+//        prev_time = curr_t;
+//
+//        double sigma = genS(mt);
+//
+//        if (curr_t <= server_t) {
+//            server_t += sigma;
+//            q.push(server_t);
+//            waited++;
+//        }
+//        else {
+//            server_t = curr_t + sigma;
+//
+//        }
+//    }
+//
+//    cout << "Средняя длина очереди: " << sum_q / curr_t << "\n";
+//    cout << "Процент ожидающих: " << 100.0 * waited / total << "%\n";
+//    return 0;
+//}
+
+//#include <iostream>
+//#include <random>
+//#include <chrono>
+//#include <queue>
+//
+//using namespace std;
+//
+//int main() {
+//    setlocale(LC_ALL, "Ru");
+//    double tau1 = 5.0, tau2 = 7.0;
+//    double sigma1 = 4.0, sigma2 = 6.0;
+//    double mtau = (tau1 + tau2) / 2.0;
+//    double msigma = (sigma1 + sigma2) / 2.0;
+//    cout << "Mtau = " << mtau << " Msigma = " << msigma << endl;
+//    double lambda = 1.0 / mtau;
+//    double mu = 1.0 / msigma;
+//    mt19937 mt(static_cast<unsigned>(
+//        chrono::steady_clock::now().time_since_epoch().count()
+//        ));
+//    exponential_distribution<> genT(lambda);
+//    exponential_distribution<> genS(mu);
+//    cout << "аналитические результаты с помощью формул: " << endl;
+//    cout << "вероятность, что сервер занят: " << lambda / mu << endl;
+//    cout << "Средняя длина очереди: " << lambda * lambda / (mu * (mu - lambda)) << endl;
+//    cout << "Среднее время ожидания: " << lambda / (mu * (mu - lambda)) << endl;
+//    cout << endl;
+//    queue<double> q; //хранит время ухода всех заданий
+//    double curr_t = 0; //время прихода текущего задания
+//    double server_t = 0; //время освобождения сервера от всех текущих заданий
+//    double sum_q = 0;
+//    double prev_t = 0; //предыдущее время прихода или выполнения задания
+//    double total_wait = 0;
+//    int N = 10000000;
+//    int waited = 0;
+//
+//    for (int i = 0; i < N; ++i) {
+//        curr_t += genT(mt);
+//        // время прихода нового задания > или = времени ухода первого задания в очереди
+//        while (!q.empty() && q.front() <= curr_t) {
+//            int real = q.size() - 1; // поскольку одно задание уже на сервере
+//            if (real < 0) real = 0;
+//            sum_q += real * (q.front() - prev_t); //отнимаем от первого ухода
+//            //время последнего обработанного задания (в это время длина очереди не менялась)
+//            prev_t = q.front();
+//            q.pop();
+//        }
+//        //подсчет очереди в то время, пока мы не заходим в while
+//        int real = q.size() - 1;
+//        if (real < 0) real = 0;
+//        sum_q += real * (curr_t - prev_t);
+//        prev_t = curr_t;
+//
+//        double sigma = genS(mt);
+//
+//        if (curr_t < server_t) {
+//            total_wait += server_t - curr_t;
+//            waited++;
+//            server_t += sigma;
+//            q.push(server_t);
+//        }
+//        else {
+//            server_t = curr_t + sigma;
+//            q.push(server_t);
+//        }
+//    }
+//    
+//    cout << "подсчеты программы: " << endl;
+//    cout << "Вероятность, что сервер занят: " << 1.0 * waited / N << "\n";
+//    cout << "Средняя длина очереди: " << sum_q / curr_t << "\n";
+//    cout << "Среднее время ожидания: " << total_wait / N << "\n";
+//
+//    cout << endl;
+//    cout << "погрешности полученных результатов (отклонение от теории) в процентах: " << endl;
+//    cout << "Вероятность, что сервер занят: " << 100 * fabs(((1.0 * waited / N) - (lambda / mu))) / (lambda / mu) << "%\n";
+//    cout << "Средняя длина очереди: " << 100 * fabs(((sum_q / curr_t) - (lambda * lambda / (mu * (mu - lambda))))) / (lambda * lambda / (mu * (mu - lambda))) << "%\n";
+//    cout << "Среднее время ожидания: " << 100 * fabs(((total_wait / N) - (lambda / (mu * (mu - lambda))))) / (lambda / (mu * (mu - lambda))) << "%\n";
+//
+//    cout << "погрешности полученных результатов (отклонение от теории) в единицах: " << endl;
+//    cout << "Вероятность, что сервер занят: " <<((1.0 * waited / N) - (lambda / mu)) << "\n";
+//    cout << "Средняя длина очереди: " << ((sum_q / curr_t) - (lambda * lambda / (mu * (mu - lambda)))) << "\n";
+//    cout << "Среднее время ожидания: " << ((total_wait / N) - (lambda / (mu * (mu - lambda)))) << "\n";
+//    return 0;
+//}
+//#include <iostream>
+//#include <random>
+//#include <chrono>
+//#include <queue>
+//
+//using namespace std;
+//
+//int main() {
+//    setlocale(LC_ALL, "Ru");
+//    double tau1 = 10.0, tau2 = 10.0;
+//    double sigma1 = 2.0, sigma2 = 6.0;
+//    double mtau = (tau1 + tau2) / 2.0;
+//    double msigma = (sigma1 + sigma2) / 2.0;
+//    cout << "Mtau = " << mtau << " Msigma = " << msigma << endl;
+//    double lambda = 1.0 / mtau;
+//    double mu = 1.0 / msigma;
+//    mt19937 mt(static_cast<unsigned>(
+//        chrono::steady_clock::now().time_since_epoch().count()
+//        ));
+//    exponential_distribution<> genT(lambda);
+//    exponential_distribution<> genS(mu);
+//    cout << "аналитические результаты с помощью формул: " << endl;
+//    cout << "вероятность, что сервер занят: " << lambda / mu << endl;
+//    cout << "Средняя длина очереди: " << lambda * lambda / (mu * (mu - lambda)) << endl;
+//    cout << "Среднее время ожидания: " << lambda / (mu * (mu - lambda)) << endl;
+//    cout << endl;
+//
+//    queue<double> q;          // времена ухода всех заданий
+//    double curr_t = 0;        // время прихода текущего задания
+//    double server_t = 0;      // когда сервер освободится от всех
+//    double sum_q = 0;         // интеграл длины очереди
+//    double prev_t = 0;        // последнее событие
+//    double total_wait = 0;
+//    int total = 1000000;      // уменьшим для скорости диагностики
+//    int waited = 0;
+//
+//    // ===== ДИАГНОСТИКА =====
+//    long long cnt_while = 0;         // итераций while
+//    long long cnt_real_gt0 = 0;      // real > 0
+//    double    sum_real = 0;          // сумма real (для среднего)
+//    double    sum_dt_while = 0;      // сумма dt в while
+//    double    sum_dt_after = 0;      // сумма dt после while
+//    int       max_q = 0;             // максимальный размер q
+//    int       cnt_push = 0;          // сколько раз q.push
+//    int       cnt_free_go = 0;       // сколько раз сразу на сервер
+//
+//    for (int i = 0; i < total; ++i) {
+//        curr_t += genT(mt);
+//
+//        while (!q.empty() && q.front() <= curr_t) {
+//            int real = q.size() - 1;
+//            if (real < 0) real = 0;
+//            double dt = q.front() - prev_t;
+//
+//            // ===== ДИАГНОСТИКА =====
+//            cnt_while++;
+//            if (real > 0) cnt_real_gt0++;
+//            sum_real += real;
+//            sum_dt_while += dt;
+//
+//            sum_q += real * dt;
+//            prev_t = q.front();
+//            q.pop();
+//        }
+//
+//        int real = q.size() - 1;
+//        if (real < 0) real = 0;
+//        double dt = curr_t - prev_t;
+//        sum_dt_after += dt;
+//
+//        sum_q += real * dt;
+//        prev_t = curr_t;
+//
+//        double sigma = genS(mt);
+//
+//        if (curr_t < server_t) {
+//            total_wait += server_t - curr_t;
+//            waited++;
+//            server_t += sigma;
+//            q.push(server_t);
+//            cnt_push++;
+//        }
+//        else {
+//            server_t = curr_t + sigma;
+//            q.push(server_t);
+//            cnt_free_go++;
+//        }
+//
+//        if ((int)q.size() > max_q) max_q = q.size();
+//    }
+//
+//    // ===== Состояние ДО дообслуживания =====
+//    cout << "=== ДО дообслуживания ===\n";
+//    cout << "q.size = " << q.size() << "\n";
+//    cout << "prev_t = " << prev_t << "\n";
+//    cout << "server_t = " << server_t << "\n";
+//    cout << "curr_t = " << curr_t << "\n";
+//    cout << "sum_q = " << sum_q << "\n\n";
+//
+//    int q_before = q.size();
+//
+//    while (!q.empty()) {
+//        int real = q.size() - 1;
+//        if (real < 0) real = 0;
+//        sum_q += real * (q.front() - prev_t);
+//        prev_t = q.front();
+//        q.pop();
+//    }
+//
+//    // ===== Состояние ПОСЛЕ дообслуживания =====
+//    cout << "=== ПОСЛЕ дообслуживания ===\n";
+//    cout << "prev_t = " << prev_t << "\n";
+//    cout << "server_t = " << server_t << "\n";
+//    cout << "sum_q = " << sum_q << "\n";
+//    cout << "q было = " << q_before << ", стало = " << q.size() << "\n\n";
+//
+//    // ===== Метрики =====
+//    double L_q = sum_q / prev_t;
+//    double W_q = total_wait / total;
+//    double P_busy = 1.0 * waited / total;
+//
+//    cout << "=== Результаты ===\n";
+//    cout << "P(занят): " << P_busy << "\n";
+//    cout << "L_q:      " << L_q << "\n";
+//    cout << "W_q:      " << W_q << "\n\n";
+//
+//    // ===== Проверки =====
+//    cout << "=== Проверки ===\n";
+//    cout << "λ·W_q = " << lambda * W_q << "   (L_q должно быть таким)\n";
+//    cout << "Теория L_q = " << lambda * lambda / (mu * (mu - lambda)) << "\n";
+//    cout << "Средний real в while: " << (cnt_while ? sum_real / cnt_while : 0) << "\n";
+//    cout << "Итераций while:       " << cnt_while << "\n";
+//    cout << "Из них real>0:        " << cnt_real_gt0 << "\n";
+//    cout << "Max q.size:           " << max_q << "\n";
+//    cout << "q.push сработал:      " << cnt_push << "\n";
+//    cout << "Сразу на сервер:      " << cnt_free_go << "\n";
+//    cout << "Сумма dt в while:     " << sum_dt_while << "\n";
+//    cout << "Сумма dt после while: " << sum_dt_after << "\n\n";
+//
+//    // ===== Погрешности =====
+//    cout << "погрешности (в процентах):\n";
+//    cout << "P(занят): " << 100 * (P_busy - lambda / mu) / (lambda / mu) << "%\n";
+//    cout << "L_q:      " << 100 * (L_q - lambda * lambda / (mu * (mu - lambda)))
+//        / (lambda * lambda / (mu * (mu - lambda))) << "%\n";
+//    cout << "W_q:      " << 100 * (W_q - lambda / (mu * (mu - lambda)))
+//        / (lambda / (mu * (mu - lambda))) << "%\n";
+//    return 0;
+//}
+
+//среднее время ожидания, экспоненциальное распределение 
+//#include <iostream>
+//#include <random>
+//#include <chrono>
+//#include <queue>
+//using namespace std;
+//
+//int main() {
+//    setlocale(LC_ALL, "Ru");
+//    double T1 = 5.0, T2 = 7.0;
+//    double s1 = 4.0, s2 = 6.0;
+//    /*double l = 0.5;
+//    mt19937 mt(static_cast<unsigned>(
+//        chrono::steady_clock::now().time_since_epoch().count()
+//        ));
+//    exponential_distribution<> genT(l);
+//    exponential_distribution<> genS(l);*/
+//    mt19937 mt(static_cast<unsigned>(
+//        chrono::steady_clock::now().time_since_epoch().count()
+//        ));
+//    uniform_real_distribution<> genT(1.0/((T2-T1)/2));
+//    uniform_real_distribution<> genS(1.0/((s2-s1)/2));
+//    int k = 0, L = 0, type = 1, i = 1, n = 1000;
+//    double systemtime = 0.0, t1, t2, ml = 0;
+//    t1 = genT(mt), t2 = t1 + genS(mt);
+//    double time_w = 0;
+//    double t = 0;
+//    while (i <= n) {
+//        if (T1 <= T2) {
+//            type = 1;
+//        }
+//        else {
+//            type = 2;
+//        }
+//        //cout << "state(K=" << K << " L=" << L << ")";
+//        if (type == 1) {
+//            //cout << "; In i=" << i << "TYP=" << TYP << "\n";
+//            ml += L;
+//            T1 += genT(mt);
+//            i++;
+//            if (k == 0) {
+//                k = 1;
+//            }
+//            else {
+//                L++;
+//                time_w += T2 - T1;
+//            }
+//        }
+//        else {
+//            if (L == 0) {
+//                k = 0;
+//                T2 = T1 + genS(mt);
+//            }
+//            else {
+//                L--;
+//                T2 += genS(mt);
+//            }
+//        }
+//    }
+//    cout << ml << " " << ml / n<<endl;
+//    cout << time_w / n;
+//    return 0;
+//}
+
+//#include <iostream>
+//#include <random>
+//#include <chrono>
+//#include <algorithm>
+//
+//using namespace std;
+//
+//int main() {
+//    // Параметры
+//    double lambda = 1.0 / 6.0;   // интенсивность прихода
+//    double mu = 1.0 / 5.0;   // интенсивность обслуживания
+//
+//    double rho = lambda / mu;    // загрузка
+//
+//    mt19937 mt(static_cast<unsigned>(
+//        chrono::steady_clock::now().time_since_epoch().count()
+//        ));
+//
+//    // Экспоненциальные распределения
+//    exponential_distribution<> genT(lambda);   // τ ~ Exp(λ)
+//    exponential_distribution<> genS(mu);      // σ ~ Exp(μ)
+//
+//    double T1 = genT(mt);   // время первого прихода
+//    double T2 = 1e18;       // уходов пока нет
+//    int K = 0;              // сервер свободен
+//    int L = 0;              // очередь пуста
+//    int i = 0;
+//    int total = 1000000;    // для точности — миллион
+//
+//    double sum_q = 0;       // интеграл длины очереди
+//    double total_wait = 0;  // сумма ожиданий
+//    double prev_time = 0;
+//    int waited = 0;         // сколько заявок ждали
+//
+//    while (i < total) {
+//        double systemtime = min(T1, T2);
+//
+//        sum_q += L * (systemtime - prev_time);
+//        prev_time = systemtime;
+//
+//        if (T1 <= T2) {
+//            // === ПРИХОД ===
+//            if (K == 0) {
+//                K = 1;
+//                T2 = T1 + genS(mt);
+//            }
+//            else {
+//                total_wait += T2 - T1;
+//                L++;
+//                waited++;
+//            }
+//            T1 += genT(mt);
+//            i++;
+//        }
+//        else {
+//            // === УХОД ===
+//            if (L == 0) {
+//                K = 0;
+//                T2 = 1e18;
+//            }
+//            else {
+//                L--;
+//                T2 += genS(mt);
+//            }
+//        }
+//    }
+//
+//    cout << "=== Симуляция M/M/1 ===\n";
+//    cout << "rho (теория):                 " << rho << "\n";
+//    cout << "P(занят) (симуляция):         "
+//        << 1.0 * waited / total << "\n";
+//    cout << "L_q (симуляция):              " << sum_q / prev_time << "\n";
+//    cout << "W_q (симуляция):              " << total_wait / total << "\n";
+//
+//    cout << "\n=== Теория ===\n";
+//    cout << "P(занят) = rho:               " << rho << "\n";
+//    cout << "L_q = rho^2 / (1-rho):        " << rho * rho / (1 - rho) << "\n";
+//    cout << "W_q = rho / (mu - lambda):    " << rho / (mu - lambda) << "\n";
+//
+//    return 0;
+//}
+
+//#include <iostream>
+//#include <random>
+//#include <chrono>
+//#include <cmath>
+//#include <vector>
+//
+//using namespace std;
+//
+//int main() {
+//    setlocale(LC_ALL, "Ru");
+//    double a = 0.0, b = 1.0;      // отрезок
+//    double h = 1.0;                // шаг
+//    int total = 2000000;           // тиков
+//
+//    double ps[] = { 0.5, 0.3, 0.1, 0.05, 0.01 };
+//    int np = 5;
+//
+//    mt19937 mt(static_cast<unsigned>(
+//        chrono::steady_clock::now().time_since_epoch().count()
+//        ));
+//    uniform_real_distribution<> uni(a, b);
+//
+//    cout << "p      E[T]      E_теор    CV      CV_теор   |CV-1|\n";
+//
+//    for (int ip = 0; ip < np; ++ip) {
+//        double p = ps[ip];
+//
+//        vector<double> intervals;
+//        double prev = -1;
+//
+//        // разрежение
+//        for (int i = 0; i < total; ++i) {
+//            if (uni(mt) < a + p * (b - a)) {
+//                double t = i * h;
+//                if (prev >= 0) intervals.push_back(t - prev);
+//                prev = t;
+//            }
+//        }
+//
+//        // моменты
+//        double sum = 0, sum2 = 0;
+//        for (double x : intervals) { sum += x; sum2 += x * x; }
+//        int n = intervals.size();
+//        double mean = sum / n;
+//        double var = sum2 / n - mean * mean;
+//        double cv = sqrt(var) / mean;
+//
+//        double mean_th = h / p;
+//        double cv_th = sqrt(1 - p);
+//
+//        cout << p << "   " << mean << "   " << mean_th
+//            << "   " << cv << "   " << cv_th
+//            << "   " << fabs(cv - 1.0) << "\n";
+//    }
+//
+//    cout << "\nДоказательство сходимости:\n";
+//    cout << "  При p -> 0: CV -> 1, |CV-1| -> 0\n";
+//    cout << "  => распределение интервалов -> Exp(lambda)\n";
+//    cout << "  => поток -> пуассоновский\n";
+//
+//    return 0;
+//}
+
+//#include <iostream>
+//#include <random>
+//#include <chrono>
+//#include <cmath>
+//#include <vector>
+//#include <queue>
+//
+//using namespace std;
+//
+//int main() {
+//    setlocale(LC_ALL, "Ru");
+//    // ===== ПАРАМЕТРЫ =====
+//    double a = 0.0, b = 1.0;         // отрезок для uniform
+//    double h = 1.0;                   // шаг регулярного потока
+//    double mu = 1.0;             // интенсивность обслуживания (среднее 5)
+//
+//    double ps[] = { 0.5, 0.3, 0.1, 0.05, 0.01 };
+//    int np = 5;
+//    int total_ticks = 2000000;
+//
+//    mt19937 mt(static_cast<unsigned>(
+//        chrono::steady_clock::now().time_since_epoch().count()
+//        ));
+//    uniform_real_distribution<> uni(a, b);
+//    exponential_distribution<> genS(mu);
+//
+//    cout << "p      E[T]      CV      |CV-1|    Lq       Wq\n";
+//    cout << "-------------------------------------------------------\n";
+//
+//    for (int ip = 0; ip < np; ++ip) {
+//        double p = ps[ip];
+//
+//        // ===== ЭТАП 1: РАЗРЕЖЕНИЕ =====
+//        vector<double> intervals;
+//        double prev = -1;
+//
+//        for (int i = 0; i < total_ticks; ++i) {
+//            if (uni(mt) < a + p * (b - a)) {
+//                double t = i * h;
+//                if (prev >= 0) intervals.push_back(t - prev);
+//                prev = t;
+//            }
+//        }
+//
+//        int n = intervals.size();
+//        if (n < 10) continue;
+//
+//        // ===== МОМЕНТЫ (для проверки сходимости) =====
+//        double sum = 0, sum2 = 0;
+//        for (double x : intervals) { sum += x; sum2 += x * x; }
+//        double mean = sum / n;
+//        double var = sum2 / n - mean * mean;
+//        double cv = sqrt(var) / mean;
+//
+//        // ===== ЭТАП 2: СМО (ваш код) =====
+//        queue<double> q;
+//        double curr_t = 0;
+//        double server_t = 0;
+//        double sum_q = 0;
+//        double total_wait = 0;
+//        double prev_time = 0;
+//
+//        for (int i = 0; i < n; ++i) {
+//            curr_t += intervals[i];          // ← интервал из разрежения!
+//
+//            // уходы до прихода
+//            while (!q.empty() && q.front() <= curr_t) {
+//                sum_q += q.size() * (q.front() - prev_time);
+//                prev_time = q.front();
+//                q.pop();
+//            }
+//            sum_q += q.size() * (curr_t - prev_time);
+//            prev_time = curr_t;
+//
+//            double sigma = genS(mt);
+//
+//            if (curr_t <= server_t) {
+//                total_wait += server_t - curr_t;
+//                server_t += sigma;
+//                q.push(server_t);
+//            }
+//            else {
+//                server_t = curr_t + sigma;
+//            }
+//        }
+//
+//        double Lq = sum_q / prev_time;
+//        double Wq = total_wait / n;
+//
+//        // ===== ВЫВОД =====
+//        cout << p << "   " << mean << "   " << cv
+//            << "   " << fabs(cv - 1.0)
+//            << "   " << Lq << "   " << Wq << "\n";
+//    }
+//
+//    cout << "\nСтолбцы:\n";
+//    cout << "  CV      — насколько поток близок к пуассоновскому\n";
+//    cout << "  |CV-1|  — отклонение от экспоненциального\n";
+//    cout << "  Lq      — средняя длина очереди\n";
+//    cout << "  Wq      — среднее время ожидания\n";
+//
+//    return 0;
+//}
+
+//#include <iostream>
+//#include <random>
+//#include <vector>
+//#include <algorithm>
+//#include <chrono>
+//#include <map>
+//using namespace std;
+//
+//
+///// Непонятно по самому заданию как определить что поток близок к пуассоновскому. Возможно нужно продублировать код с экспоненциальным распределением интервалов и проверить что Fano factor близок к 1.0
+//int main()
+//{
+//    setlocale(LC_ALL, "Russian");
+//
+//    const int n = 1000000;     // число КАНДИДАТОВ на приход (до прореживания)
+//    const int n1 = 100000;      // число интервалов гистограммы
+//    double lambda = 5, mu = 5.1;
+//    bool md1 = 0;
+//
+//    vector<double> arrival;
+//    vector<double> service;
+//
+//    for (double ver : { 0.5, 0.3, 0.1 }) {
+//        arrival.clear();
+//        service.clear();
+//        cout << "Вероятность p = " << ver << endl;
+//        // Генератор случайных чисел
+//        mt19937 mt{ static_cast<mt19937::result_type>(
+//            chrono::steady_clock::now().time_since_epoch().count()) };
+//        uniform_real_distribution<> tau(3, 8);
+//        uniform_real_distribution<> sigma(3, 8);
+//        bernoulli_distribution keep(ver);
+//
+//        arrival.reserve(n);
+//        service.reserve(n);
+//
+//        double t = 0;
+//        for (int i = 0; i < n; ++i) {
+//            t += tau(mt);
+//            if (keep(mt)) {
+//                arrival.push_back(t);
+//                service.push_back(md1 ? 1.0 : sigma(mt));
+//            }
+//        }
+//
+//        int m = (int)arrival.size();
+//        if (m == 0) {
+//            cout << "После прореживания не осталось ни одного события" << endl;
+//            return 0;
+//        }
+//
+//        double lastTime = arrival[m - 1] + service[m - 1];
+//        double h = lastTime / n1;
+//        cout << "h = " << h << endl;
+//
+//        vector<int> eventsInInterval(n1, 0);
+//        int eventIndex = 0;
+//        double hi = 0;
+//
+//        for (int i = 0; i < n1; ++i) {
+//            hi += h;
+//            while (eventIndex < m && arrival[eventIndex] < hi) {
+//                eventsInInterval[i]++;
+//                eventIndex++;
+//            }
+//            //cout << eventsInInterval[i] << " ";
+//        }
+//        cout << endl;
+//
+//        map<int, int> histogram;
+//
+//        for (int c : eventsInInterval) histogram[c]++;
+//
+//        cout << "Гистограмма числа событий в интервале:" << endl;
+//        for (const auto& i : histogram) {
+//            cout << "  " << i.first << " событий: " << (double)i.second / n1 << endl;
+//        }
+//
+//        cout << endl;
+//
+//
+//        double meanCount = 0;
+//        for (int c : eventsInInterval) meanCount += c;
+//        meanCount /= n1;
+//
+//        double varCount = 0;
+//        for (int c : eventsInInterval) varCount += (c - meanCount) * (c - meanCount);
+//        varCount /= n1;
+//
+//        double fano = varCount / meanCount;
+//
+//        cout << "Среднее число событий в интервале: " << meanCount << endl;
+//        cout << "Дисперсия числа событий:           " << varCount << endl;
+//        cout << "Fano factor (Var/Mean):            " << fano
+//            << "  (для Пуассона должен быть = 1)" << endl;
+//
+//        if (ver == 0.1) {
+//            cout << endl << "Проверка с экспоненциальным распределением интервалов:" << endl;
+//            arrival.clear();
+//            service.clear();
+//            cout << "Вероятность p = " << ver << endl;
+//            // Генератор случайных чисел
+//            exponential_distribution<> tau1(5);
+//
+//            arrival.reserve(n);
+//            service.reserve(n);
+//
+//            t = 0;
+//            for (int i = 0; i < n; ++i) {
+//                t += tau1(mt);
+//                if (keep(mt)) {
+//                    arrival.push_back(t);
+//                    service.push_back(md1 ? 1.0 : sigma(mt));
+//                }
+//            }
+//
+//            m = (int)arrival.size();
+//            if (m == 0) {
+//                cout << "После прореживания не осталось ни одного события" << endl;
+//                return 0;
+//            }
+//
+//            lastTime = arrival[m - 1] + service[m - 1];
+//            h = lastTime / n1;
+//            cout << "h = " << h << endl;
+//
+//            eventsInInterval.assign(n1, 0);
+//            eventIndex = 0;
+//            hi = 0;
+//
+//            for (int i = 0; i < n1; ++i) {
+//                hi += h;
+//                while (eventIndex < m && arrival[eventIndex] < hi) {
+//                    eventsInInterval[i]++;
+//                    eventIndex++;
+//                }
+//                //cout << eventsInInterval[i] << " ";
+//            }
+//            cout << endl;
+//
+//            histogram.clear();
+//
+//            for (int c : eventsInInterval) histogram[c]++;
+//
+//            cout << "Гистограмма числа событий в интервале:" << endl;
+//            for (const auto& i : histogram) {
+//                cout << "  " << i.first << " событий: " << (double)i.second / n1 << endl;
+//            }
+//
+//            cout << endl;
+//
+//
+//            meanCount = 0;
+//            for (int c : eventsInInterval) meanCount += c;
+//            meanCount /= n1;
+//
+//            varCount = 0;
+//            for (int c : eventsInInterval) varCount += (c - meanCount) * (c - meanCount);
+//            varCount /= n1;
+//
+//            fano = varCount / meanCount;
+//
+//            cout << "Среднее число событий в интервале: " << meanCount << endl;
+//            cout << "Дисперсия числа событий:           " << varCount << endl;
+//            cout << "Fano factor (Var/Mean):            " << fano
+//                << "  (для Пуассона должен быть = 1)" << endl;
+//        }
+//    }
+//
+//    //double timeWaiting = 0;
+//    //int waitCount = 0;
+//    //for (int i = 0; i < n; ++i) {
+//    //    double serviceStart = (i == 0) ? arrival[i] : max(serviceEnd[i - 1], arrival[i]);
+//    //    waitingTime[i] = serviceStart - arrival[i];
+//    //    if (i > 0 && arrival[i] < serviceEnd[i - 1]) {
+//    //        waitCount++;
+//    //    }
+//    //    serviceEnd[i] = serviceStart + service[i];
+//    //}
+//
+//    //// Строим список событий (+1 при приходе, -1 при уходе), сортируем по времени и интегрируем число заявок в системе по времени -> получаем средние.
+//    //struct Event { double time; int delta; };
+//    //vector<Event> events;
+//    //events.reserve(2 * n);
+//    //for (int i = 0; i < n; ++i) {
+//    //    events.push_back({ arrival[i],   +1 });
+//    //    events.push_back({ serviceEnd[i], -1 });
+//    //}
+//    //sort(events.begin(), events.end(), [](const Event& a, const Event& b) {
+//    //    return a.time < b.time;
+//    //    });
+//
+//    //double prevTime = events.front().time;
+//    //int inSystem = 0;
+//    //double areaInQueue = 0.0;    // интеграл (число в очереди, без обслуживаемого) dt
+//
+//    //for (const auto& e : events) {
+//    //    double dt = e.time - prevTime;
+//    //    areaInQueue += max(0, inSystem - 1) * dt; // -1, т.к. один в обслуживании
+//    //    inSystem += e.delta;
+//    //    prevTime = e.time;
+//    //}
+//
+//    //double totalTime = serviceEnd.back();
+//    //double avgTime = 0.0;
+//    //for (int i = 0; i < n; i++) {
+//    //    avgTime += waitingTime[i];
+//    //}
+//
+//    //cout << "Сервер занят: "
+//    //    << (double)waitCount / n << endl;
+//    //cout << "Средняя длина очереди: "
+//    //    << areaInQueue / totalTime << endl;
+//    //cout << "Среднее время ожидания: " << avgTime / n << endl;
+//    //
+//    //double p = lambda / mu;
+//
+//    //cout << endl<< "Проверка по формулам: "<<endl;
+//    //cout << "Сервер занят: "
+//    //    << p << endl;
+//    //if (md1) {
+//    //    cout << "Средняя длина очереди M/D/1: " << p * p / ((1 - p) * 2) << endl;
+//    //    cout << "Среднее время ожидания M/D/1: " << p / (2 * mu * (1 - p)) << endl<<endl;
+//    //    cout << "Погрешность" << endl;
+//    //    cout << "Сервер занят: "
+//    //        << abs(p - (double)waitCount / n) << endl;
+//    //    cout << "Среднее время ожидания M/D/1: " << abs(p / (2 * mu * (1 - p)) - avgTime / n) << endl;
+//    //    cout << "Средняя длина очереди M/D/1: " << abs(p * p / ((1 - p) * 2) - areaInQueue / totalTime) << endl;
+//    //}
+//    //else {
+//    //    cout << "Средняя длина очереди: " << lambda * lambda / (mu * (mu - lambda)) << endl;
+//    //    cout << "Среднее время ожидания: " << lambda / (mu * (mu - lambda)) << endl<<endl;
+//    //    cout << "Погрешность" << endl;
+//    //    cout << "Сервер занят: "
+//    //        << abs(p - (double)waitCount / n) << endl;
+//    //    cout << "Средняя длина очереди: " << abs(lambda * lambda / (mu * (mu - lambda)) - areaInQueue / totalTime) << endl;
+//    //    cout << "Среднее время ожидания: " << abs(lambda / (mu * (mu - lambda)) - avgTime / n) << endl;
+//    //}
+//
+//}
+
+//#include <iostream>
+//#include <random>
+//#include <chrono>
+//#include <vector>
+//#include <cmath>
+//#include <map>
+//#include <iomanip>
+//
+//using namespace std;
+//
+//// Считает Fano factor для потока
+//void analyze(const vector<double>& arrival, int n1) {
+//    int m = arrival.size();
+//    if (m < 2) return;
+//
+//    double lastTime = arrival.back();
+//    double h = lastTime / n1;
+//
+//    vector<int> eventsInInterval(n1, 0);
+//    int idx = 0;
+//    double hi = 0;
+//
+//    for (int i = 0; i < n1; ++i) {
+//        hi += h;
+//        while (idx < m && arrival[idx] < hi) {
+//            eventsInInterval[i]++;
+//            idx++;
+//        }
+//    }
+//
+//    // Гистограмма
+//    map<int, int> hist;
+//    for (int c : eventsInInterval) hist[c]++;
+//
+//    cout << "  Гистограмма числа событий в окне:\n";
+//    for (auto& kv : hist) {
+//        cout << "    " << kv.first << " событий: "
+//            << (double)kv.second / n1 << "\n";
+//    }
+//
+//    // Fano factor
+//    double meanCount = 0, varCount = 0;
+//    for (int c : eventsInInterval) meanCount += c;
+//    meanCount /= n1;
+//    for (int c : eventsInInterval) varCount += (c - meanCount) * (c - meanCount);
+//    varCount /= n1;
+//
+//    double fano = varCount / meanCount;
+//
+//    cout << "  Среднее число событий: " << meanCount << "\n";
+//    cout << "  Дисперсия:             " << varCount << "\n";
+//    cout << "  Fano factor:           " << fano
+//        << "   (для Пуассона = 1)\n";
+//}
+//
+//int main() {
+//    setlocale(LC_ALL, "Ru");
+//
+//    // ===== ПАРАМЕТРЫ =====
+//    double a = 0.0, b = 1.0;       // отрезок для разрежения
+//    double h_step = 1.0;            // шаг регулярного потока
+//    int total = 100000;            // тиков
+//    int n1 = 10000;                 // окон для Fano
+//
+//    double ps[] = { 0.5, 0.3, 0.1, 0.05, 0.01 };
+//    int np = 5;
+//
+//    mt19937 mt(static_cast<unsigned>(
+//        chrono::steady_clock::now().time_since_epoch().count()
+//        ));
+//    //uniform_real_distribution<> uni(a, b);
+//
+//    cout << fixed << setprecision(4);
+//
+//    // ===== ЦИКЛ ПО p =====
+//    for (int ip = 0; ip < np; ++ip) {
+//        double p = ps[ip];
+//        bernoulli_distribution keep(p);
+//
+//        cout << "\n========== p = " << p << " ==========\n";
+//
+//        // --- 1) РАЗРЕЖЕНИЕ РАВНОМЕРНОГО ПОТОКА ---
+//        vector<double> arrival;
+//        double t = 0;
+//        for (int i = 0; i < total; ++i) {
+//            t += h_step;
+//            if (keep(mt)) {
+//                arrival.push_back(t);
+//            }
+//        }
+//
+//        cout << "\n[1] Прореженный равномерный поток:\n";
+//        analyze(arrival, n1);
+//
+//        // --- 2) ЭТАЛОН: ЭКСПОНЕНЦИАЛЬНЫЙ ПОТОК ---
+//        // Средняя интенсивность прореженного = p / h
+//        double lambda = p / h_step;
+//        exponential_distribution<> genExp(lambda);
+//
+//        vector<double> arrival_exp;
+//        double T = total * h_step;
+//
+//        t = 0;
+//        while (true) {
+//            t += genExp(mt);
+//            if (t >= T) break;
+//            arrival_exp.push_back(t);
+//        }
+//
+//        cout << "\n[2] Эталон: экспоненциальный поток (λ = " << lambda << "):\n";
+//        analyze(arrival_exp, n1);
+//    }
+//
+//    return 0;
+//}
+
+//#include <iostream>
+//#include <iomanip>
+//#include <cmath>
+//#include <chrono>
+//#include <random>
+//#include <map>
+//using namespace std;
+//using namespace chrono;
+//
+//void a(const vector<double>& arrival, int n1) {
+//    double m = arrival.size();
+//    if (m < 2)
+//        return;
+//
+//    double time = arrival.back();
+//    double h = time / n1;
+//
+//    vector<int>eventsInInt(n1, 0);
+//    int idx = 0, hi = 0;
+//
+//    for (int i = 0;i < n1;++i) {
+//        hi += h;
+//        while (idx < m && arrival[idx] < hi) {
+//            eventsInInt[i]++;
+//			idx++;
+//        }
+//    }
+//
+//    map<int, int>hist;
+//    for (int c : eventsInInt) hist[c]++;
+//
+//    for(auto&k : hist)
+//		cout << k.first << " " << (double)k.second / n1 << endl;
+//
+//    int mean = 0, var = 0;
+//	for (int c : eventsInInt) mean += c;
+//	mean /= n1;
+//	for (int c : eventsInInt) var += (c - mean) * (c - mean);
+//	var /= n1;
+//
+//    cout << "fano: " << var / mean << "\n";
+//
+//    
+//}
+//int main() {
+//    setlocale(LC_ALL, "Ru");
+//    double a = 0.0, b = 1.0;
+//    int t = 1000000;
+//    int n1 = 1000;
+//    int h = 1.0;
+//    double ps[] = { 0.5, 0.3, 0.1, 0.05, 0.01 };
+//    int np = 5;
+//
+//    mt19937 mt(static_cast<unsigned>(steady_clock::now().time_since_epoch().count()));
+//
+//    for (int ip = 0;ip < np;++ip) {
+//        double p = ps[ip];
+//		bernoulli_distribution keep(p);
+//
+//        vector<double>arrival;
+//        double t2 = 0;
+//        for (int i = 0; i < t; ++i) {
+//            t2 += h;
+//            if (keep(mt)) {
+//				arrival.push_back(t2);
+//            }
+//        }
+//        cout << "\n[1] Прореженный равномерный поток:\n";
+//        analyze(arrival, n1);
+//
+//
+//    }
+//
+//}
+
+
+//
+//#include <iostream>
+//#include <random>
+//#include <chrono>
+//#include <vector>
+//#include <queue>
+//#include <array>
+//#include <iomanip>
+//#include <limits>
+//
+//using namespace std;
+//using namespace chrono;
+//
+//
+//struct Job {
+//    double arrival;
+//    int k, m, l;
+//    int done1 = 0, done2 = 0, done3 = 0;
+//};
+//
+//int main() {
+//    setlocale(LC_ALL, "Russian");
+//
+//    mt19937 mt(static_cast<unsigned>(steady_clock::now().time_since_epoch().count()));
+//
+//    const int n = 100000;
+//
+//    // Интенсивности обслуживания
+//    double mu1 = 0.5, mu2 = 0.5, mu3 = 0.5;
+//
+//    uniform_real_distribution<> tau(4, 6);
+//    uniform_int_distribution<> km(1, 2);
+//    uniform_int_distribution<> ld(0, 2);
+//    exponential_distribution<> s1(mu1), s2(mu2), s3(mu3);
+//
+//    vector<Job> jobs;
+//    jobs.reserve(n);
+//
+//    array<queue<int>, 3> q;
+//    array<int, 3> current = { -1, -1, -1 };
+//    array<double, 3> finish = {
+//        numeric_limits<double>::infinity(),
+//        numeric_limits<double>::infinity(),
+//        numeric_limits<double>::infinity()
+//    };
+//
+//    int generated = 0, completed = 0;
+//    double t = 0, nextArrival = tau(mt);
+//    double totalTime = 0;
+//
+//    // Запуск обслуживания на свободной фазе
+//    auto start = [&](int phase) {
+//        if (current[phase] != -1 || q[phase].empty())
+//            return;
+//
+//        int id = q[phase].front();
+//        q[phase].pop();
+//        current[phase] = id;
+//
+//        if (phase == 0) finish[phase] = t + s1(mt);
+//        if (phase == 1) finish[phase] = t + s2(mt);
+//        if (phase == 2) finish[phase] = t + s3(mt);
+//        };
+//
+//    while (completed < n) {
+//        // Ближайшее событие
+//        t = nextArrival;
+//        for (int i = 0; i < 3; ++i)
+//            t = min(t, finish[i]);
+//
+//        // Завершение обслуживания
+//        for (int i = 0; i < 3; ++i) {
+//            if (current[i] == -1 || finish[i] > t)
+//                continue;
+//
+//            int id = current[i];
+//            current[i] = -1;
+//            finish[i] = numeric_limits<double>::infinity();
+//
+//            Job& j = jobs[id];
+//
+//            if (i == 0) {
+//                ++j.done1;
+//                if (j.done1 < j.k)
+//                    q[0].push(id);
+//                else
+//                    q[1].push(id);
+//            }
+//            else if (i == 1) {
+//                ++j.done2;
+//                if (j.done2 < j.m)
+//                    q[1].push(id);
+//                else if (j.l > 0)
+//                    q[2].push(id);
+//                else {
+//                    totalTime += t - j.arrival;
+//                    ++completed;
+//                }
+//            }
+//            else {
+//                ++j.done3;
+//                if (j.done3 < j.l)
+//                    q[2].push(id);
+//                else {
+//                    totalTime += t - j.arrival;
+//                    ++completed;
+//                }
+//            }
+//        }
+//
+//        // Поступление нового задания
+//        if (generated < n && nextArrival <= t) {
+//            Job j;
+//            j.arrival = t;
+//            j.k = km(mt);
+//            j.m = km(mt);
+//            j.l = ld(mt);
+//
+//            jobs.push_back(j);
+//            q[0].push(generated);
+//            ++generated;
+//
+//            if (generated < n)
+//                nextArrival = t + tau(mt);
+//            else
+//                nextArrival = numeric_limits<double>::infinity();
+//        }
+//
+//        // Запускаем свободные фазы
+//        for (int i = 0; i < 3; ++i)
+//            start(i);
+//    }
+//
+//    double lambda = 1.0 / 5.0;
+//
+//    cout << fixed << setprecision(4);
+//    cout << "Поступило заданий: " << generated << '\n';
+//    cout << "Завершено заданий: " << completed << '\n';
+//
+//    cout << "\nКоэффициенты загрузки:\n";
+//    cout << "rho1 = " << lambda * 1.5 / mu1 << '\n';
+//    cout << "rho2 = " << lambda * 1.5 / mu2 << '\n';
+//    cout << "rho3 = " << lambda * 1.0 / mu3 << '\n';
+//
+//    cout << "\nУсловия устойчивости:\n";
+//    cout << "mu1 > 0.3: " << (mu1 > 0.3 ? "да" : "нет") << '\n';
+//    cout << "mu2 > 0.3: " << (mu2 > 0.3 ? "да" : "нет") << '\n';
+//    cout << "mu3 > 0.2: " << (mu3 > 0.2 ? "да" : "нет") << '\n';
+//
+//    cout << "\nСреднее время пребывания в системе: "
+//        << totalTime / completed << '\n';
+//
+//    return 0;
+//}
+
+
+//#include <iostream>
+//#include <random>
+//#include <vector>
+//#include <iomanip>
+//#include <cmath>
+//#include <chrono>
+//
+//using namespace std;
+//using namespace chrono;
+//
+//int main() {
+//    setlocale(LC_ALL, "Russian");
+//
+//    int n = 3;              // Число каналов
+//    double lambda = 2.0;    // Интенсивность поступления заявок
+//    double mu = 1.0;        // Интенсивность обслуживания одного канала
+//    double T = 100000.0;    // Время моделирования
+//
+//    double rho = lambda / mu;
+//
+//    mt19937 gen(static_cast<unsigned>(steady_clock::now().time_since_epoch().count()));
+//    exponential_distribution<double> arrivalGen(lambda);
+//    exponential_distribution<double> serviceGen(mu);
+//
+//    // Время окончания обслуживания в каждом канале.
+//    // 0 означает, что канал свободен.
+//    vector<double> finish(n, 0.0);
+//
+//    double t = 0.0;
+//    int total = 0;
+//    int rejected = 0;
+//    int accepted = 0;
+//
+//    while (true) {
+//        t += arrivalGen(gen);
+//
+//        if (t > T)
+//            break;
+//
+//        total++;
+//
+//        // Освобождаем каналы, обслуживание в которых завершилось.
+//        for (int i = 0; i < n; i++) {
+//            if (finish[i] <= t)
+//                finish[i] = 0.0;
+//        }
+//
+//        // Ищем свободный канал.
+//        int freeChannel = -1;
+//
+//        for (int i = 0; i < n; i++) {
+//            if (finish[i] == 0.0) {
+//                freeChannel = i;
+//                break;
+//            }
+//        }
+//
+//        if (freeChannel != -1) {
+//            // Заявка принята на обслуживание.
+//            finish[freeChannel] = t + serviceGen(gen);
+//            accepted++;
+//        }
+//        else {
+//            // Все каналы заняты — отказ.
+//            rejected++;
+//        }
+//    }
+//
+//    // Теоретическая вероятность отказа по Эрлангу B.
+//    double denominator = 1.0;
+//    double term = 1.0;
+//
+//    for (int k = 1; k <= n; k++) {
+//        term *= rho / k;
+//        denominator += term;
+//    }
+//
+//    double termN = 1.0;
+//    for (int k = 1; k <= n; k++)
+//        termN *= rho / k;
+//
+//    double pReject = termN / denominator;
+//    double theoreticalRejects = lambda * T * pReject;
+//
+//    cout << fixed << setprecision(4);
+//    cout << "Число каналов n: " << n << "\n";
+//    cout << "Интенсивность заявок lambda: " << lambda << "\n";
+//    cout << "Интенсивность обслуживания mu: " << mu << "\n";
+//    cout << "Нагрузка rho = lambda / mu: " << rho << "\n\n";
+//
+//    cout << "Всего поступило заявок: " << total << "\n";
+//    cout << "Принято заявок: " << accepted << "\n";
+//    cout << "Отказов: " << rejected << "\n";
+//    cout << "Доля отказов: "
+//        << (total > 0 ? (double)rejected / total : 0.0) << "\n";
+//    cout << "Отказов за единицу времени: "
+//        << (double)rejected / T << "\n\n";
+//
+//    cout << "Теоретическая вероятность отказа: "
+//        << pReject << "\n";
+//    cout << "Теоретическое среднее число отказов за T: "
+//        << theoreticalRejects << "\n";
+//
+//    return 0;
+//}
