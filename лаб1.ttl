@@ -1,0 +1,307 @@
+@prefix : <http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20/> .
+
+<http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20> rdf:type owl:Ontology .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#эталон
+:эталон rdf:type owl:ObjectProperty ;
+        rdfs:subPropertyOf owl:topObjectProperty ;
+        rdfs:domain :учебные_задания ;
+        rdfs:range :эталонный_ответ .
+
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#интервал_повторения
+:интервал_повторения rdf:type owl:DatatypeProperty ;
+                     rdfs:subPropertyOf :числовое ;
+                     rdfs:domain :следующая_учебная_сессия ;
+                     rdfs:range xsd:double .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#количество_карточек
+:количество_карточек rdf:type owl:DatatypeProperty ;
+                     rdfs:subPropertyOf :числовое ;
+                     rdfs:domain :учебный_контент ;
+                     rdfs:range xsd:int .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#логическое
+:логическое rdf:type owl:DatatypeProperty ;
+            rdfs:subPropertyOf owl:topDataProperty .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#название_конспекта
+:название_конспекта rdf:type owl:DatatypeProperty ;
+                    rdfs:subPropertyOf :текстовое ;
+                    rdfs:domain :конспекты ;
+                    rdfs:range xsd:string .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#название_платформы
+:название_платформы rdf:type owl:DatatypeProperty ;
+                    rdfs:subPropertyOf :текстовое ;
+                    rdfs:domain :адптивное_обучение ;
+                    rdfs:range xsd:string .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#номер_сессии
+:номер_сессии rdf:type owl:DatatypeProperty ;
+              rdfs:subPropertyOf :числовое ;
+              rdfs:domain :следующая_учебная_сессия ;
+              rdfs:range xsd:int .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#ответ_проверен
+:ответ_проверен rdf:type owl:DatatypeProperty ;
+                rdfs:subPropertyOf :логическое ;
+                rdfs:domain :проверка_знаний ;
+                rdfs:range xsd:boolean .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#оценка_знаний
+:оценка_знаний rdf:type owl:DatatypeProperty ;
+               rdfs:subPropertyOf :числовое ;
+               rdfs:domain :оценивание_знаний ;
+               rdfs:range xsd:double .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#свободное
+:свободное rdf:type owl:DatatypeProperty ;
+           rdfs:subPropertyOf owl:topDataProperty .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#текст_голосового_ответа
+:текст_голосового_ответа rdf:type owl:DatatypeProperty ;
+                         rdfs:subPropertyOf :свободное ;
+                         rdfs:domain :ответ_обучающегося ;
+                         rdfs:range xsd:string .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#текст_задания
+:текст_задания rdf:type owl:DatatypeProperty ;
+               rdfs:subPropertyOf :текстовое ;
+               rdfs:domain :учебные_задания ;
+               rdfs:range xsd:string .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#текст_карточки
+:текст_карточки rdf:type owl:DatatypeProperty ;
+                rdfs:subPropertyOf :текстовое ;
+                rdfs:domain :карточки ;
+                rdfs:range xsd:string .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#текстовое
+:текстовое rdf:type owl:DatatypeProperty ;
+           rdfs:subPropertyOf owl:topDataProperty .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#числовое
+:числовое rdf:type owl:DatatypeProperty ;
+          rdfs:subPropertyOf owl:topDataProperty .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#эталонный_ответ
+:эталонный_ответ rdf:type owl:DatatypeProperty ;
+                 rdfs:subPropertyOf :текстовое ;
+                 rdfs:domain :эталонный_ответ ;
+                 rdfs:range xsd:string .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#адаптация_обучения
+:адаптация_обучения rdf:type owl:Class ;
+                    rdfs:subClassOf :эффективность_обучения .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#адптивное_обучение
+:адптивное_обучение rdf:type owl:Class .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#карточки
+:карточки rdf:type owl:Class ;
+          rdfs:subClassOf :учебный_контент .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#конспекты
+:конспекты rdf:type owl:Class ;
+           rdfs:subClassOf :учебный_контент .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#ответ_обучающегося
+:ответ_обучающегося rdf:type owl:Class ;
+                    rdfs:subClassOf :проверка_знаний .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#оценивание_знаний
+:оценивание_знаний rdf:type owl:Class ;
+                   rdfs:subClassOf :эталонный_ответ .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#параметры_обучения
+:параметры_обучения rdf:type owl:Class ;
+                    rdfs:subClassOf :адаптация_обучения ;
+                    owl:disjointWith :содержание_учебного_контента .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#повышение_уровня_знаний
+:повышение_уровня_знаний rdf:type owl:Class ;
+                         rdfs:subClassOf :усвоение_материала .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#проверка_знаний
+:проверка_знаний rdf:type owl:Class ;
+                 rdfs:subClassOf :адптивное_обучение .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#прогресс_обучения
+:прогресс_обучения rdf:type owl:Class ;
+                   rdfs:subClassOf :стратегия_обучения .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#результаты_обучения
+:результаты_обучения rdf:type owl:Class ;
+                     rdfs:subClassOf :адптивное_обучение .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#следующая_учебная_сессия
+:следующая_учебная_сессия rdf:type owl:Class ;
+                          rdfs:subClassOf :параметры_обучения .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#содержание_учебного_контента
+:содержание_учебного_контента rdf:type owl:Class ;
+                              rdfs:subClassOf :адаптация_обучения .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#стратегия_обучения
+:стратегия_обучения rdf:type owl:Class ;
+                    rdfs:subClassOf :адптивное_обучение .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#темы_обучения
+:темы_обучения rdf:type owl:Class ;
+               rdfs:subClassOf :характеристики_обучающегося .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#уровень_знаний
+:уровень_знаний rdf:type owl:Class ;
+                rdfs:subClassOf :характеристики_обучающегося .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#усвоение_материала
+:усвоение_материала rdf:type owl:Class ;
+                    rdfs:subClassOf :содержание_учебного_контента .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#учебные_задания
+:учебные_задания rdf:type owl:Class ;
+                 rdfs:subClassOf :учебный_контент .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#учебный_контент
+:учебный_контент rdf:type owl:Class ;
+                 rdfs:subClassOf :адптивное_обучение .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#характеристики_обучающегося
+:характеристики_обучающегося rdf:type owl:Class ;
+                             rdfs:subClassOf :адптивное_обучение ,
+                                             :повышение_уровня_знаний ,
+                                             :стратегия_обучения .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#цели_обучения
+:цели_обучения rdf:type owl:Class ;
+               rdfs:subClassOf :характеристики_обучающегося .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#эталонный_ответ
+:эталонный_ответ rdf:type owl:Class ;
+                 rdfs:subClassOf :ответ_обучающегося ,
+                                 :учебные_задания .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#эффективность_обучения
+:эффективность_обучения rdf:type owl:Class ;
+                        rdfs:subClassOf :прогресс_обучения ,
+                                        :результаты_обучения .
+
+
+#################################################################
+#    Individuals
+#################################################################
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#задание_по_алгебре_1
+:задание_по_алгебре_1 rdf:type owl:NamedIndividual ,
+                               :учебные_задания ;
+                      :эталон :задание_по_алгебре_1 ;
+                      :текст_задания "2+2=?" .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#карточка_по_алгебре_1
+:карточка_по_алгебре_1 rdf:type owl:NamedIndividual ,
+                                :карточки .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#конспект_по_алгебре_1
+:конспект_по_алгебре_1 rdf:type owl:NamedIndividual ,
+                                :конспекты .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#ответ_ученика_1
+:ответ_ученика_1 rdf:type owl:NamedIndividual ,
+                          :ответ_обучающегося .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#сессия_1
+:сессия_1 rdf:type owl:NamedIndividual ,
+                   :следующая_учебная_сессия .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#характеристики_ученика_1
+:характеристики_ученика_1 rdf:type owl:NamedIndividual ,
+                                   :характеристики_обучающегося .
+
+
+###  http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#эталонный_ответ_1
+:эталонный_ответ_1 rdf:type owl:NamedIndividual ,
+                            :эталонный_ответ .
+
+
+#################################################################
+#    General axioms
+#################################################################
+
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :карточки
+                :конспекты
+                :учебные_задания
+              )
+] .
+
+
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :темы_обучения
+                :уровень_знаний
+                :цели_обучения
+              )
+] .
+
+
+###  Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi

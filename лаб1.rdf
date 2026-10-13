@@ -1,0 +1,484 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20/"
+     xml:base="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20/"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:untitled-ontology-20="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#">
+    <owl:Ontology rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#эталон -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#эталон">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#учебные_задания"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#эталонный_ответ"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#интервал_повторения -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#интервал_повторения">
+        <rdfs:subPropertyOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#числовое"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#следующая_учебная_сессия"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#количество_карточек -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#количество_карточек">
+        <rdfs:subPropertyOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#числовое"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#учебный_контент"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#логическое -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#логическое">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#название_конспекта -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#название_конспекта">
+        <rdfs:subPropertyOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#текстовое"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#конспекты"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#название_платформы -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#название_платформы">
+        <rdfs:subPropertyOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#текстовое"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#адптивное_обучение"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#номер_сессии -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#номер_сессии">
+        <rdfs:subPropertyOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#числовое"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#следующая_учебная_сессия"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#ответ_проверен -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#ответ_проверен">
+        <rdfs:subPropertyOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#логическое"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#проверка_знаний"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#оценка_знаний -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#оценка_знаний">
+        <rdfs:subPropertyOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#числовое"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#оценивание_знаний"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#свободное -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#свободное">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#текст_голосового_ответа -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#текст_голосового_ответа">
+        <rdfs:subPropertyOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#свободное"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#ответ_обучающегося"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#текст_задания -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#текст_задания">
+        <rdfs:subPropertyOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#текстовое"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#учебные_задания"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#текст_карточки -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#текст_карточки">
+        <rdfs:subPropertyOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#текстовое"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#карточки"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#текстовое -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#текстовое">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#числовое -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#числовое">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#эталонный_ответ -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#эталонный_ответ">
+        <rdfs:subPropertyOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#текстовое"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#эталонный_ответ"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#адаптация_обучения -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#адаптация_обучения">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#эффективность_обучения"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#адптивное_обучение -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#адптивное_обучение"/>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#карточки -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#карточки">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#учебный_контент"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#конспекты -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#конспекты">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#учебный_контент"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#ответ_обучающегося -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#ответ_обучающегося">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#проверка_знаний"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#оценивание_знаний -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#оценивание_знаний">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#эталонный_ответ"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#параметры_обучения -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#параметры_обучения">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#адаптация_обучения"/>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#содержание_учебного_контента"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#повышение_уровня_знаний -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#повышение_уровня_знаний">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#усвоение_материала"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#проверка_знаний -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#проверка_знаний">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#адптивное_обучение"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#прогресс_обучения -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#прогресс_обучения">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#стратегия_обучения"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#результаты_обучения -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#результаты_обучения">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#адптивное_обучение"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#следующая_учебная_сессия -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#следующая_учебная_сессия">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#параметры_обучения"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#содержание_учебного_контента -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#содержание_учебного_контента">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#адаптация_обучения"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#стратегия_обучения -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#стратегия_обучения">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#адптивное_обучение"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#темы_обучения -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#темы_обучения">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#характеристики_обучающегося"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#уровень_знаний -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#уровень_знаний">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#характеристики_обучающегося"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#усвоение_материала -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#усвоение_материала">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#содержание_учебного_контента"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#учебные_задания -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#учебные_задания">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#учебный_контент"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#учебный_контент -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#учебный_контент">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#адптивное_обучение"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#характеристики_обучающегося -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#характеристики_обучающегося">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#адптивное_обучение"/>
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#повышение_уровня_знаний"/>
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#стратегия_обучения"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#цели_обучения -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#цели_обучения">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#характеристики_обучающегося"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#эталонный_ответ -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#эталонный_ответ">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#ответ_обучающегося"/>
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#учебные_задания"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#эффективность_обучения -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#эффективность_обучения">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#прогресс_обучения"/>
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#результаты_обучения"/>
+    </owl:Class>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#задание_по_алгебре_1 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#задание_по_алгебре_1">
+        <rdf:type rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#учебные_задания"/>
+        <untitled-ontology-20:эталон rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#задание_по_алгебре_1"/>
+        <untitled-ontology-20:текст_задания>2+2=?</untitled-ontology-20:текст_задания>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#карточка_по_алгебре_1 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#карточка_по_алгебре_1">
+        <rdf:type rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#карточки"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#конспект_по_алгебре_1 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#конспект_по_алгебре_1">
+        <rdf:type rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#конспекты"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#ответ_ученика_1 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#ответ_ученика_1">
+        <rdf:type rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#ответ_обучающегося"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#сессия_1 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#сессия_1">
+        <rdf:type rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#следующая_учебная_сессия"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#характеристики_ученика_1 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#характеристики_ученика_1">
+        <rdf:type rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#характеристики_обучающегося"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#эталонный_ответ_1 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#эталонный_ответ_1">
+        <rdf:type rdf:resource="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#эталонный_ответ"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // General axioms
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#карточки"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#конспекты"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#учебные_задания"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#темы_обучения"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#уровень_знаний"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/yacen/ontologies/2026/9/untitled-ontology-20#цели_обучения"/>
+        </owl:members>
+    </rdf:Description>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi -->
+
